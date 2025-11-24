@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "619633938404",
+    "project_id": "loteria-simulator",
+    "storage_bucket": "loteria-simulator.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619633938404:android:63695926d9b7c1001541f1",
+        "android_client_info": {
+          "package_name": "com.dulceyson.loteria_simulator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "619633938404-aatupb8luj7q2nkd3qicnb4oqjgjcun1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtjTClIYigTsRW5FP2BDk-LAt3yt59dzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "619633938404-aatupb8luj7q2nkd3qicnb4oqjgjcun1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
