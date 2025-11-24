@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart'; // 1. Importar Firebase
+import 'package:google_sign_in/google_sign_in.dart'; // 2. Importar Google
 import 'package:shared_preferences/shared_preferences.dart';
 import '../modules/auth/models/user_model.dart';
 
@@ -6,75 +8,75 @@ class AuthService {
   static const String _userKey = 'auth_user';
   final SharedPreferences _prefs;
 
+  // Instancias privadas
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   AuthService(this._prefs);
 
-  // Simulate Google Sign In
-  // TODO: IMPLEMENTACION REAL CON FIREBASE
-  // 1. Agregar paquetes: flutter pub add firebase_auth google_sign_in
-  // 2. Importar:
-  //    import 'package:firebase_auth/firebase_auth.dart';
-  //    import 'package:google_sign_in/google_sign_in.dart';
-  // 3. Reemplazar este método con la lógica real:
-  /*
+  /// Iniciar sesión con Google (REAL)
   Future<UserModel?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return null; // Usuario canceló
+      // A. Disparar el flujo de selección de cuenta de Google
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
+      if (googleUser == null) {
+        return null; // El usuario cerró la ventana de login
+      }
+
+      // B. Obtener los tokens de autenticación de la cuenta seleccionada
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // C. Crear credencial para Firebase
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      final User? user = userCredential.user;
+      // D. Iniciar sesión en Firebase con esa credencial
+      final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final User? firebaseUser = userCredential.user;
 
-      if (user != null) {
-         final userModel = UserModel(
-           id: user.uid,
-           email: user.email ?? '',
-           displayName: user.displayName ?? 'Usuario',
-           photoUrl: user.photoURL,
-         );
-         // Guardar en estado local si se desea
-         return userModel;
+      if (firebaseUser != null) {
+        // E. Crear nuestro modelo de usuario propio
+        final userModel = UserModel(
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
+          displayName: firebaseUser.displayName ?? 'Usuario',
+          photoUrl: firebaseUser.photoURL ?? '',
+        );
+
+        // F. Guardar sesión localmente (Persistencia rápida)
+        await _saveUser(userModel);
+
+        return userModel;
       }
     } catch (e) {
-      print(e);
+      print("❌ Error en Login Google: $e");
+      // Aquí podrías lanzar una excepción personalizada si lo deseas
     }
     return null;
   }
-  */
-  Future<UserModel?> signInWithGoogle() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
 
-    // Return a mock user
-    // In a real app, this would come from GoogleSignIn and FirebaseAuth
-    final user = UserModel(
-      id: 'google_123456789',
-      email: 'usuario@ejemplo.com',
-      displayName: 'Usuario de Prueba',
-      photoUrl: 'https://lh3.googleusercontent.com/a/default-user=s96-c', // Placeholder
-    );
-
-    await _saveUser(user);
-    return user;
-  }
-
+  /// Cerrar Sesión (REAL)
   Future<void> signOut() async {
-    // TODO: IMPLEMENTACION REAL CON FIREBASE
-    // await FirebaseAuth.instance.signOut();
-    // await GoogleSignIn().signOut();
+    try {
+      // 1. Cerrar sesión en Google (para que pida cuenta la próxima vez)
+      await _googleSignIn.signOut();
 
-    await Future.delayed(const Duration(milliseconds: 500));
-    await _prefs.remove(_userKey);
+      // 2. Cerrar sesión en Firebase
+      await _firebaseAuth.signOut();
+
+      // 3. Borrar datos locales
+      await _prefs.remove(_userKey);
+    } catch (e) {
+      print("Error al cerrar sesión: $e");
+    }
   }
 
+  /// Obtener usuario actual (Síncrono/Local)
+  /// Usamos SharedPreferences para una respuesta instantánea al iniciar la app
   UserModel? getCurrentUser() {
-    // TODO: En Firebase se usa FirebaseAuth.instance.currentUser
-    // Pero para persistencia rápida local en este ejemplo mock usamos SharedPreferences
     final userJson = _prefs.getString(_userKey);
     if (userJson == null) return null;
 
@@ -85,6 +87,7 @@ class AuthService {
     }
   }
 
+  /// Método privado para persistencia
   Future<void> _saveUser(UserModel user) async {
     await _prefs.setString(_userKey, jsonEncode(user.toMap()));
   }

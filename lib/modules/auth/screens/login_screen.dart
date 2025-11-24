@@ -9,75 +9,107 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      // ExtendBodyBehindAppBar permite que el gradiente suba hasta la barra de estado
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+        // Usamos leadingWidth para evitar que el botón quede muy pegado
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.black12,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
         ),
       ),
-      extendBodyBehindAppBar: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              colors.primary.withOpacity(0.1),
-              colors.surface,
+              const Color(0xFF0F172A), // Azul noche oscuro (Premium)
+              const Color(0xFF1E293B),
             ],
           ),
         ),
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView( // Evita overflow en pantallas pequeñas
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.account_circle_outlined,
-                  size: 80,
-                  color: colors.primary,
+                // Logo animado o Icono
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: const Icon(
+                    Icons.casino_rounded,
+                    size: 60,
+                    color: Colors.white,
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 30),
+
                 Text(
                   'Bienvenido',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  style: textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: colors.onSurface,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Inicia sesión para guardar tu progreso y acceder a funciones premium.',
+                  'Inicia sesión para sincronizar tus simulaciones y acceder al historial avanzado.',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: colors.onSurfaceVariant,
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[400],
+                    height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 60),
 
                 if (appState.isAuthLoading)
-                  const CircularProgressIndicator()
+                  const CircularProgressIndicator(color: Colors.white)
                 else
-                  _GoogleSignInButton(
-                    onPressed: () async {
-                      await appState.playClick();
-                      await appState.login();
-                      if (appState.isLoggedIn && context.mounted) {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                  ),
+                  Column(
+                    children: [
+                      _GoogleSignInButton(
+                        onPressed: () async {
+                          // 1. Sonido o feedback háptico (si tienes el método)
+                          // await appState.playClick();
 
-                const SizedBox(height: 24),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Continuar como invitado'),
-                ),
+                          // 2. Ejecutar Login
+                          await appState.login();
+
+                          // 3. Cerrar pantalla si fue exitoso
+                          if (appState.isLoggedIn && context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          'Continuar como invitado',
+                          style: TextStyle(color: Colors.grey[500]),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -94,46 +126,41 @@ class _GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? const Color(0xFF4285F4) : Colors.white;
-    final foregroundColor = isDark ? Colors.white : Colors.black54;
-
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
-        elevation: 2,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Placeholder for Google Logo
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Logo de Google (simulado o imagen real)
+            Image.network(
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+              height: 24,
+              width: 24,
+              errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.g_mobiledata, color: Colors.red, size: 30),
             ),
-            child: const Icon(
-              Icons.g_mobiledata, // Using a built-in icon as placeholder
-              color: Colors.red,
-              size: 24,
+            const SizedBox(width: 12),
+            const Text(
+              'Continuar con Google',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Roboto', // Fuente estándar de Google
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          const Text(
-            'Sign in with Google',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

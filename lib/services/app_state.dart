@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui';
 import 'settings_service.dart';
 import 'auth_service.dart';
 import '../modules/auth/models/user_model.dart';
 
 class AppState extends ChangeNotifier {
   final SettingsService _settingsService;
-  late final AuthService _authService; // Initialize later or now?
+  late final AuthService _authService;
 
   late ThemeMode _themeMode;
   late bool _isSoundEnabled;
@@ -17,16 +18,21 @@ class AppState extends ChangeNotifier {
   bool _isAuthLoading = false;
 
   AppState(this._settingsService) {
+    // 1. Cargar preferencias guardadas
     _themeMode = _settingsService.themeMode;
     _isSoundEnabled = _settingsService.isSoundEnabled;
     _isHapticEnabled = _settingsService.isHapticEnabled;
     _hasSeenOnboarding = _settingsService.hasSeenOnboarding;
 
-    // Initialize AuthService using the same prefs from SettingsService
+    // 2. Inicializar AuthService inyectando las preferencias
+    // Esto conecta con el AuthService que arreglamos en el paso anterior
     _authService = AuthService(_settingsService.prefs);
+
+    // 3. Cargar usuario si ya existía sesión guardada localmente
     _currentUser = _authService.getCurrentUser();
   }
 
+  // --- Getters ---
   ThemeMode get themeMode => _themeMode;
   bool get isSoundEnabled => _isSoundEnabled;
   bool get isHapticEnabled => _isHapticEnabled;
@@ -36,12 +42,17 @@ class AppState extends ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
   bool get isAuthLoading => _isAuthLoading;
 
+  /// CORRECCIÓN IMPORTANTE:
+  /// Detecta si la app se ve oscura, incluso si está en modo "Automático/System"
   bool get isDarkMode {
     if (_themeMode == ThemeMode.system) {
-      return false;
+      // Preguntamos al sistema operativo cuál es el brillo actual
+      return PlatformDispatcher.instance.platformBrightness == Brightness.dark;
     }
     return _themeMode == ThemeMode.dark;
   }
+
+  // --- Setters / Actions ---
 
   Future<void> setThemeMode(ThemeMode mode) async {
     if (mode == _themeMode) return;
@@ -51,7 +62,8 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> toggleTheme() async {
-    if (_themeMode == ThemeMode.dark) {
+    // Si es Dark (o Sistema Dark), pasamos a Light. De lo contrario a Dark.
+    if (isDarkMode) {
       await setThemeMode(ThemeMode.light);
     } else {
       await setThemeMode(ThemeMode.dark);
@@ -83,17 +95,21 @@ class AppState extends ChangeNotifier {
 
   Future<void> login() async {
     if (_isAuthLoading) return;
+
     _isAuthLoading = true;
     notifyListeners();
 
     try {
+      // Llamada al servicio real de Firebase/Google
       final user = await _authService.signInWithGoogle();
-      _currentUser = user;
-      // Haptic feedback on success
-      vibrateSuccess();
+
+      if (user != null) {
+        _currentUser = user;
+        await vibrateSuccess(); // Feedback táctil si es exitoso
+      }
     } catch (e) {
-      // Handle error
       debugPrint('Login failed: $e');
+      // Aquí podrías agregar una variable de error para mostrar en la UI
     } finally {
       _isAuthLoading = false;
       notifyListeners();
@@ -102,19 +118,23 @@ class AppState extends ChangeNotifier {
 
   Future<void> logout() async {
     if (_isAuthLoading) return;
+
     _isAuthLoading = true;
     notifyListeners();
 
     try {
       await _authService.signOut();
       _currentUser = null;
+      await vibrate();
+    } catch (e) {
+      debugPrint('Logout failed: $e');
     } finally {
       _isAuthLoading = false;
       notifyListeners();
     }
   }
 
-  // --- Actions ---
+  // --- Feedback Actions ---
 
   Future<void> playClick() async {
     if (_isSoundEnabled) {
