@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'loteria_service.dart';
 
 class SimulationService {

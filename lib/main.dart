@@ -1,27 +1,39 @@
 import 'package:flutter/material.dart';
 import 'modules/menu/menu_loterias_screen.dart';
+import 'modules/onboarding/onboarding_screen.dart';
+import 'services/settings_service.dart';
+import 'services/app_state.dart';
+import 'theme/app_theme.dart';
 
-void main() {
-  runApp(const LoteriaSimulatorApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final settingsService = await SettingsService.init();
+  final appState = AppState(settingsService);
+
+  runApp(LoteriaSimulatorApp(appState: appState));
 }
 
 class LoteriaSimulatorApp extends StatelessWidget {
-  const LoteriaSimulatorApp({super.key});
+  final AppState appState;
+
+  const LoteriaSimulatorApp({super.key, required this.appState});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Lotería Simulator',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.grey[100],
-        // Definimos una fuente predeterminada bonita si deseas
-        // fontFamily: 'Roboto',
-      ),
-      // AHORA LA HOME ES EL MENÚ DE LOTERÍAS
-      home: const MenuLoteriasScreen(),
+    return AnimatedBuilder(
+      animation: appState,
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'Lotería Simulator',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: appState.themeMode,
+          home: appState.hasSeenOnboarding
+              ? MenuLoteriasScreen(appState: appState)
+              : OnboardingScreen(appState: appState),
+        );
+      },
     );
   }
 }

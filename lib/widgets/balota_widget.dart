@@ -18,7 +18,6 @@ class BalotaWidget extends StatelessWidget {
     final Color colorBase = esSuperBalota ? const Color(0xFFD32F2F) : const Color(0xFFFFD700);
     final Color colorBrillo = esSuperBalota ? const Color(0xFFFFCDD2) : const Color(0xFFFFFFE0);
     final Color colorSombra = esSuperBalota ? const Color(0xFF8B0000) : const Color(0xFFF57F17);
-    final Color colorTexto = esSuperBalota ? Colors.white : Colors.black87;
 
     return Container(
       width: size,
