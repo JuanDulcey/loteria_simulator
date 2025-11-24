@@ -2,20 +2,34 @@ import 'package:flutter/material.dart';
 import '../../services/loteria_service.dart';
 import '../../widgets/balota_widget.dart';
 
-class Ambiente1Screen extends StatefulWidget {
+enum TipoGeneracion {
+  aleatorio,
+  estadistico,
+  patrones,
+  historico,
+  numerologia,
+}
+
+class GeneradorBalotaScreen extends StatefulWidget {
   // Recibimos la lista de números que YA salieron para no repetirlos
   final List<int> numerosExcluidos;
+  final String titulo;
+  final TipoGeneracion tipo;
+  final Color colorTema;
 
-  const Ambiente1Screen({
+  const GeneradorBalotaScreen({
     super.key,
     required this.numerosExcluidos,
+    required this.titulo,
+    required this.tipo,
+    required this.colorTema,
   });
 
   @override
-  State<Ambiente1Screen> createState() => _Ambiente1ScreenState();
+  State<GeneradorBalotaScreen> createState() => _GeneradorBalotaScreenState();
 }
 
-class _Ambiente1ScreenState extends State<Ambiente1Screen> {
+class _GeneradorBalotaScreenState extends State<GeneradorBalotaScreen> {
   final LoteriaService _loteriaService = LoteriaService();
   int? _numeroGenerado;
   bool _simulando = false;
@@ -32,7 +46,24 @@ class _Ambiente1ScreenState extends State<Ambiente1Screen> {
 
     setState(() {
       // Aquí ocurre la magia: pedimos un número que NO esté en la lista de excluidos
-      _numeroGenerado = _loteriaService.generarNumeroUnico(widget.numerosExcluidos);
+      // Dependiendo del tipo, llamamos al servicio correspondiente
+      switch (widget.tipo) {
+        case TipoGeneracion.aleatorio:
+          _numeroGenerado = _loteriaService.generarNumeroUnico(widget.numerosExcluidos);
+          break;
+        case TipoGeneracion.estadistico:
+          _numeroGenerado = _loteriaService.generarNumeroEstadistico(widget.numerosExcluidos);
+          break;
+        case TipoGeneracion.patrones:
+          _numeroGenerado = _loteriaService.generarNumeroPatrones(widget.numerosExcluidos);
+          break;
+        case TipoGeneracion.historico:
+          _numeroGenerado = _loteriaService.generarNumeroHistorico(widget.numerosExcluidos);
+          break;
+        case TipoGeneracion.numerologia:
+          _numeroGenerado = _loteriaService.generarNumeroNumerologia(widget.numerosExcluidos);
+          break;
+      }
       _simulando = false;
     });
   }
@@ -48,8 +79,8 @@ class _Ambiente1ScreenState extends State<Ambiente1Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ambiente 1: Aleatorio'),
-        backgroundColor: Colors.indigo,
+        title: Text(widget.titulo),
+        backgroundColor: widget.colorTema,
         foregroundColor: Colors.white,
       ),
       body: Center(
@@ -75,7 +106,7 @@ class _Ambiente1ScreenState extends State<Ambiente1Screen> {
             SizedBox(
               height: 120,
               child: _simulando
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator(color: widget.colorTema))
                   : _numeroGenerado != null
                   ? BalotaWidget(numero: _numeroGenerado!, size: 100)
                   : Container(
@@ -99,6 +130,8 @@ class _Ambiente1ScreenState extends State<Ambiente1Screen> {
                 label: const Text('INICIAR SIMULACIÓN'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  backgroundColor: widget.colorTema,
+                  foregroundColor: Colors.white,
                 ),
               )
             else
