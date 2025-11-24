@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../services/loteria_service.dart';
-import '../../widgets/balota_widget.dart';
+import '../../../services/loteria_service.dart';
+import '../../../widgets/balota_widget.dart';
 
 enum TipoGeneracion {
   aleatorio,
