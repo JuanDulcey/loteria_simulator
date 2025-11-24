@@ -1,30 +1,34 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Importante para el mock
 
+// Importa tus archivos
 import 'package:loteria_simulator/main.dart';
+import 'package:loteria_simulator/services/app_state.dart';
+import 'package:loteria_simulator/services/settings_service.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const LoteriaSimulatorApp());
+  testWidgets('La app carga correctamente con AppState', (WidgetTester tester) async {
+    // 1. SIMULAR BASE DE DATOS LOCAL (SharedPreferences)
+    // Esto es necesario porque SettingsService intenta leer el disco.
+    SharedPreferences.setMockInitialValues({
+      'hasSeenOnboarding': true, // Simulamos que ya vio el onboarding
+      'themeMode': 'system',
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // 2. INICIALIZAR SERVICIOS MANUALMENTE
+    // Como estamos en un test, el "main" real no se ejecuta, así que lo hacemos aquí.
+    final settingsService = await SettingsService.init();
+    final appState = AppState(settingsService);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // 3. CARGAR LA APP PASANDO EL ESTADO
+    // Aquí es donde solucionamos el error "appState is required"
+    await tester.pumpWidget(LoteriaSimulatorApp(appState: appState));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // 4. ESPERAR Y VERIFICAR
+    await tester.pumpAndSettle();
+
+    // Verificamos que cargó el menú (porque hasSeenOnboarding es true)
+    expect(find.text('COLOMBIA LOTTERY'), findsOneWidget);
+    expect(find.text('Sorteos Disponibles'), findsOneWidget);
   });
 }

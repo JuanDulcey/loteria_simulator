@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../services/app_state.dart';
-import '../menu/menu_loterias_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final AppState appState;
