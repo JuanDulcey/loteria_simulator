@@ -9,6 +9,8 @@ class SettingsService {
 
   final SharedPreferences _prefs;
 
+  SharedPreferences get prefs => _prefs;
+
   SettingsService(this._prefs);
 
   static Future<SettingsService> init() async {

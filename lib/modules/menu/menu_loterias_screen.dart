@@ -4,6 +4,8 @@ import '../../services/app_state.dart';
 import '../baloto/baloto_screen.dart';
 import '../settings/settings_screen.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../auth/screens/login_screen.dart';
+import '../auth/screens/profile_screen.dart';
 
 class MenuLoteriasScreen extends StatelessWidget {
   final AppState appState;
@@ -34,6 +36,22 @@ class MenuLoteriasScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: colorScheme.surface,
             actions: [
+               IconButton(
+                 icon: Icon(appState.isLoggedIn ? Icons.account_circle : Icons.account_circle_outlined),
+                 onPressed: () {
+                   if (appState.isLoggedIn) {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (context) => ProfileScreen(appState: appState)),
+                     );
+                   } else {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (context) => LoginScreen(appState: appState)),
+                     );
+                   }
+                 },
+               ),
                IconButton(
                  icon: const Icon(Icons.settings),
                  onPressed: () {
