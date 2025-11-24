@@ -65,7 +65,8 @@ class _BalotoScreenState extends State<BalotoScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const BalotoDashboardScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const BalotoDashboardScreen()),
               );
             },
           ),
@@ -80,7 +81,8 @@ class _BalotoScreenState extends State<BalotoScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HistorialScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const HistorialScreen()),
               );
             },
           ),
@@ -97,13 +99,15 @@ class _BalotoScreenState extends State<BalotoScreen> {
                 height: 140,
                 decoration: const BoxDecoration(
                   color: Color(0xFF0F172A),
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+                  borderRadius:
+                  BorderRadius.vertical(bottom: Radius.circular(30)),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  padding:
+                  const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFFBE6), // Color papel
                     borderRadius: BorderRadius.circular(16),
@@ -133,7 +137,10 @@ class _BalotoScreenState extends State<BalotoScreen> {
                         ],
                       ),
                       const SizedBox(height: 15),
-                      // Usamos FittedBox para evitar overflow en pantallas pequeñas
+
+                      // SOLUCIÓN AL ERROR DE RENDERFLEX:
+                      // Envolvemos el Row en un FittedBox.
+                      // Esto reduce el tamaño de las bolas proporcionalmente si la pantalla es muy angosta.
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Row(
@@ -143,7 +150,8 @@ class _BalotoScreenState extends State<BalotoScreen> {
                             ...List.generate(5, (index) {
                               final numero = _misNumeros[index];
                               return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                padding:
+                                const EdgeInsets.symmetric(horizontal: 4),
                                 child: numero == null
                                     ? _buildEmptySlot(index + 1)
                                     : BalotaWidget(numero: numero, size: 42),
@@ -152,7 +160,8 @@ class _BalotoScreenState extends State<BalotoScreen> {
 
                             // Divisor visual
                             Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 12),
+                              margin:
+                              const EdgeInsets.symmetric(horizontal: 12),
                               width: 1,
                               height: 40,
                               color: Colors.grey[300],
@@ -162,13 +171,14 @@ class _BalotoScreenState extends State<BalotoScreen> {
                             _superBalota == null
                                 ? _buildEmptySlot(0, esSuper: true)
                                 : BalotaWidget(
-                                    numero: _superBalota!,
-                                    size: 42,
-                                    esSuperBalota: true,
-                                  ),
+                              numero: _superBalota!,
+                              size: 42,
+                              esSuperBalota: true,
+                            ),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 10),
                       // Decoración de línea punteada simulada
                       Row(
@@ -287,20 +297,19 @@ class _BalotoScreenState extends State<BalotoScreen> {
                             numeros: numerosLimpios,
                             superBalota: _superBalota!);
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Row(
-                                children: const [
-                                  Icon(Icons.check_circle, color: Colors.white),
-                                  SizedBox(width: 10),
-                                  Text("¡Ticket guardado exitosamente!"),
-                                ],
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: const Color(0xFF0F172A),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                            ));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Row(
+                            children: const [
+                              Icon(Icons.check_circle, color: Colors.white),
+                              SizedBox(width: 10),
+                              Text("¡Ticket guardado exitosamente!"),
+                            ],
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: const Color(0xFF0F172A),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ));
                       }
                     }
                   },
