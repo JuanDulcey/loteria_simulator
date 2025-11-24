@@ -133,37 +133,41 @@ class _BalotoScreenState extends State<BalotoScreen> {
                         ],
                       ),
                       const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Balotas Normales (1-5)
-                          ...List.generate(5, (index) {
-                            final numero = _misNumeros[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: numero == null
-                                  ? _buildEmptySlot(index + 1)
-                                  : BalotaWidget(numero: numero, size: 42),
-                            );
-                          }),
+                      // Usamos FittedBox para evitar overflow en pantallas pequeñas
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Balotas Normales (1-5)
+                            ...List.generate(5, (index) {
+                              final numero = _misNumeros[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: numero == null
+                                    ? _buildEmptySlot(index + 1)
+                                    : BalotaWidget(numero: numero, size: 42),
+                              );
+                            }),
 
-                          // Divisor visual
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 12),
-                            width: 1,
-                            height: 40,
-                            color: Colors.grey[300],
-                          ),
+                            // Divisor visual
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 12),
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[300],
+                            ),
 
-                          // Superbalota
-                          _superBalota == null
-                              ? _buildEmptySlot(0, esSuper: true)
-                              : BalotaWidget(
-                            numero: _superBalota!,
-                            size: 42,
-                            esSuperBalota: true,
-                          ),
-                        ],
+                            // Superbalota
+                            _superBalota == null
+                                ? _buildEmptySlot(0, esSuper: true)
+                                : BalotaWidget(
+                                    numero: _superBalota!,
+                                    size: 42,
+                                    esSuperBalota: true,
+                                  ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 10),
                       // Decoración de línea punteada simulada
