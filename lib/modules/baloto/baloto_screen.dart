@@ -5,10 +5,13 @@ import 'screens/generador_balota_screen.dart'; // IMPORTANTE: Nueva pantalla gen
 import '../superbalota/super_balota_screen.dart';
 import 'baloto_dashboard_screen.dart';
 import '../../services/history_service.dart';
+import '../../services/app_state.dart';
 import 'historial_screen.dart';
 
 class BalotoScreen extends StatefulWidget {
-  const BalotoScreen({super.key});
+  final AppState? appState;
+
+  const BalotoScreen({super.key, this.appState});
 
   @override
   State<BalotoScreen> createState() => _BalotoScreenState();
@@ -21,6 +24,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
 
   /// Método para navegar a un ambiente y esperar el número generado
   Future<void> _irAAmbiente(int indexArray, Widget pantalla) async {
+    widget.appState?.playClick();
     final int? numeroGenerado = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => pantalla),
@@ -31,32 +35,35 @@ class _BalotoScreenState extends State<BalotoScreen> {
       setState(() {
         _misNumeros[indexArray] = numeroGenerado;
       });
+      widget.appState?.vibrate();
     }
   }
 
   /// Reinicia todo el tablero
   void _resetearTodo() {
+    widget.appState?.playClick();
     setState(() {
       for (int i = 0; i < 5; i++) _misNumeros[i] = null;
       _superBalota = null;
     });
+    widget.appState?.vibrate();
   }
 
   @override
   Widget build(BuildContext context) {
     // Calculamos qué números ya existen para no repetirlos
     final numerosExistentes = _misNumeros.whereType<int>().toList();
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'SIMULADOR BALOTO',
           style: TextStyle(letterSpacing: 1.0, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFF0F172A),
-        foregroundColor: Colors.white,
+        // AppBar uses theme color now
         elevation: 0,
         actions: [
           IconButton(
@@ -97,10 +104,10 @@ class _BalotoScreenState extends State<BalotoScreen> {
             children: [
               Container(
                 height: 140,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0F172A),
+                decoration: BoxDecoration(
+                  color: theme.appBarTheme.backgroundColor ?? const Color(0xFF0F172A),
                   borderRadius:
-                  BorderRadius.vertical(bottom: Radius.circular(30)),
+                  const BorderRadius.vertical(bottom: Radius.circular(30)),
                 ),
               ),
               Padding(
@@ -109,7 +116,9 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   padding:
                   const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFBE6), // Color papel
+                    color: theme.brightness == Brightness.dark
+                           ? theme.colorScheme.surface
+                           : const Color(0xFFFFFBE6), // Paper color in light mode, surface in dark
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -124,10 +133,10 @@ class _BalotoScreenState extends State<BalotoScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             "TU APUESTA",
                             style: TextStyle(
-                              color: Color(0xFF0F172A),
+                              color: theme.brightness == Brightness.dark ? Colors.white : const Color(0xFF0F172A),
                               fontWeight: FontWeight.w900,
                               fontSize: 14,
                               letterSpacing: 1.5,
@@ -138,9 +147,6 @@ class _BalotoScreenState extends State<BalotoScreen> {
                       ),
                       const SizedBox(height: 15),
 
-                      // SOLUCIÓN AL ERROR DE RENDERFLEX:
-                      // Envolvemos el Row en un FittedBox.
-                      // Esto reduce el tamaño de las bolas proporcionalmente si la pantalla es muy angosta.
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Row(
@@ -226,6 +232,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                         titulo: "Ambiente 1: Aleatorio",
                         tipo: TipoGeneracion.aleatorio,
                         colorTema: Colors.blueAccent,
+                        appState: widget.appState,
                       )),
                 ),
 
@@ -244,6 +251,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                         titulo: "Ambiente 2: Estadístico",
                         tipo: TipoGeneracion.estadistico,
                         colorTema: Colors.purpleAccent,
+                        appState: widget.appState,
                       )),
                 ),
 
@@ -262,6 +270,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                         titulo: "Ambiente 3: Patrones",
                         tipo: TipoGeneracion.patrones,
                         colorTema: Colors.orangeAccent,
+                        appState: widget.appState,
                       )),
                 ),
 
@@ -280,6 +289,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                         titulo: "Ambiente 4: Histórico",
                         tipo: TipoGeneracion.historico,
                         colorTema: Colors.tealAccent,
+                        appState: widget.appState,
                       )),
                 ),
 
@@ -298,6 +308,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                         titulo: "Ambiente 5: Numerología",
                         tipo: TipoGeneracion.numerologia,
                         colorTema: Colors.pinkAccent,
+                        appState: widget.appState,
                       )),
                 ),
 
@@ -311,15 +322,18 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   activo: _superBalota == null,
                   bloqueado: _misNumeros.contains(null),
                   onTap: () async {
+                    widget.appState?.playClick();
                     final resultado = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const SuperBalotaScreen()),
+                          builder: (context) => SuperBalotaScreen(appState: widget.appState)),
                     );
                     if (resultado != null) {
                       setState(() {
                         _superBalota = resultado;
                       });
+                      widget.appState?.vibrateSuccess();
+
                       if (!_misNumeros.contains(null) && _superBalota != null) {
                         final numerosLimpios =
                         _misNumeros.whereType<int>().toList();
@@ -336,7 +350,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                             ],
                           ),
                           behavior: SnackBarBehavior.floating,
-                          backgroundColor: const Color(0xFF0F172A),
+                          backgroundColor: theme.colorScheme.primary,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ));
@@ -364,8 +378,13 @@ class _BalotoScreenState extends State<BalotoScreen> {
     required VoidCallback onTap,
     bool esSuper = false,
   }) {
-    // Estado completado: No está activo (ya se jugó) y no está bloqueado
     bool completado = !activo && !bloqueado;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Adjust colors for dark mode
+    final cardColor = isDark ? theme.cardColor : Colors.white;
+    final cardColorDisabled = isDark ? Colors.grey[800]! : Colors.grey[50]!;
 
     return Container(
       decoration: BoxDecoration(
@@ -390,14 +409,16 @@ class _BalotoScreenState extends State<BalotoScreen> {
               borderRadius: BorderRadius.circular(20),
               gradient: bloqueado
                   ? LinearGradient(
-                colors: [Colors.grey[200]!, Colors.grey[300]!],
+                colors: isDark
+                    ? [Colors.grey[800]!, Colors.grey[900]!]
+                    : [Colors.grey[200]!, Colors.grey[300]!],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
                   : LinearGradient(
                 colors: completado
                     ? [Colors.green[400]!, Colors.green[600]!]
-                    : [Colors.white, Colors.grey[50]!],
+                    : [cardColor, cardColorDisabled],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -457,7 +478,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                                   ? Colors.white
                                   : (bloqueado
                                   ? Colors.grey
-                                  : const Color(0xFF0F172A)),
+                                  : theme.textTheme.bodyLarge?.color),
                             ),
                           ),
                           Text(
@@ -483,11 +504,13 @@ class _BalotoScreenState extends State<BalotoScreen> {
   }
 
   Widget _buildEmptySlot(int numero, {bool esSuper = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF334155) : Colors.white,
         shape: BoxShape.circle,
         border: Border.all(
           color: Colors.grey.withOpacity(0.3),

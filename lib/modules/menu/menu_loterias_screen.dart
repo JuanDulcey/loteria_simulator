@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../services/app_state.dart';
 import '../baloto/baloto_screen.dart';
+import '../settings/settings_screen.dart';
+import '../onboarding/onboarding_screen.dart';
 
 class MenuLoteriasScreen extends StatelessWidget {
-  const MenuLoteriasScreen({super.key});
+  final AppState appState;
+
+  const MenuLoteriasScreen({super.key, required this.appState});
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    // Update system UI overlay based on theme
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
     ));
 
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -22,7 +32,18 @@ class MenuLoteriasScreen extends StatelessWidget {
             expandedHeight: 250.0,
             floating: false,
             pinned: true,
-            backgroundColor: const Color(0xFF0F172A),
+            backgroundColor: colorScheme.surface,
+            actions: [
+               IconButton(
+                 icon: const Icon(Icons.settings),
+                 onPressed: () {
+                   Navigator.push(
+                     context,
+                     MaterialPageRoute(builder: (context) => SettingsScreen(appState: appState)),
+                   );
+                 },
+               ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: const Text(
@@ -43,15 +64,15 @@ class MenuLoteriasScreen extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Color(0xFF0F172A), Color(0xFF334155)],
+                            colors: [colorScheme.primary, colorScheme.secondary],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                         ),
-                        child: const Center(
-                          child: Icon(Icons.casino, size: 80, color: Colors.white10),
+                        child: Center(
+                          child: Icon(Icons.casino, size: 80, color: Colors.white.withOpacity(0.1)),
                         ),
                       );
                     },
@@ -63,7 +84,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          const Color(0xFF0F172A).withOpacity(0.8),
+                          Colors.black.withOpacity(0.8), // Always dark overlay for text visibility
                         ],
                         stops: const [0.6, 1.0],
                       ),
@@ -79,19 +100,17 @@ class MenuLoteriasScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                const Text(
+                Text(
                   "Sorteos Disponibles",
-                  style: TextStyle(
-                    fontSize: 20,
+                  style: textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF334155),
                     letterSpacing: 0.5,
                   ),
                 ),
                 const SizedBox(height: 5),
-                const Text(
+                Text(
                   "Selecciona tu juego favorito para empezar a simular",
-                  style: TextStyle(color: Colors.grey),
+                  style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
                 ),
                 const SizedBox(height: 25),
 
@@ -105,7 +124,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                   icono: Icons.star_rate_rounded,
                   esActiva: true,
                   esDestacada: true,
-                  destino: const BalotoScreen(),
+                  destino: BalotoScreen(appState: appState),
                 ),
 
                 const SizedBox(height: 20),
@@ -147,6 +166,20 @@ class MenuLoteriasScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 40),
+
+                // Button to restart tutorial manually (Alternative to settings)
+                Center(
+                  child: TextButton.icon(
+                    icon: Icon(Icons.help_outline, color: colorScheme.secondary),
+                    label: Text("Ver Tutorial de Bienvenida", style: TextStyle(color: colorScheme.secondary)),
+                    onPressed: () {
+                         Navigator.push(
+                           context,
+                           MaterialPageRoute(builder: (context) => OnboardingScreen(appState: appState)),
+                         );
+                    },
+                  ),
+                )
               ]),
             ),
           ),
@@ -186,17 +219,27 @@ class MenuLoteriasScreen extends StatelessWidget {
             if (esActiva && destino != null) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => destino));
             } else {
+              final theme = Theme.of(context);
+              final isDark = theme.brightness == Brightness.dark;
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("$nombre está en construcción 🚧"),
+                  content: Text(
+                    "$nombre está en construcción 🚧",
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                  ),
                   behavior: SnackBarBehavior.floating,
-                  backgroundColor: const Color(0xFF1E293B),
+                  backgroundColor: theme.cardColor,
+                  action: SnackBarAction(
+                    label: 'OK',
+                    onPressed: (){},
+                    textColor: theme.colorScheme.primary
+                  ),
                 ),
               );
             }
           },
           child: Ink(
-            // CORRECCIÓN 1: Eliminamos 'height' fijo.
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
@@ -205,7 +248,6 @@ class MenuLoteriasScreen extends StatelessWidget {
                 colors: [colorInicio, colorFin],
               ),
             ),
-            // CORRECCIÓN 2: Usamos Container con constraints para permitir expansión
             child: Container(
               constraints: BoxConstraints(
                   minHeight: esDestacada ? 140 : 100
@@ -227,7 +269,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center, // Alineación vertical centrada
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // Icono Principal
                         Container(
@@ -246,7 +288,6 @@ class MenuLoteriasScreen extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            // CORRECCIÓN 3: MainAxisSize.min para que no ocupe espacio innecesario
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
