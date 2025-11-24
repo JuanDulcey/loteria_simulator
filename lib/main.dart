@@ -13,7 +13,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // A. INICIALIZAR FIREBASE (Sin esto, AuthService falla)
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("⚠️ Advertencia: No se pudo inicializar Firebase. Verifique configuración: $e");
+  }
 
   // B. Bloquear rotación (Opcional, se ve mejor en vertical)
   SystemChrome.setPreferredOrientations([

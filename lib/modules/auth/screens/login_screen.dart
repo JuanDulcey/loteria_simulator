@@ -8,20 +8,17 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      // ExtendBodyBehindAppBar permite que el gradiente suba hasta la barra de estado
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        // Usamos leadingWidth para evitar que el botón quede muy pegado
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.black12,
+            backgroundColor: Colors.black26,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
@@ -30,23 +27,22 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF0F172A), // Azul noche oscuro (Premium)
-              const Color(0xFF1E293B),
+              Color(0xFF0F172A),
+              Color(0xFF1E293B),
             ],
           ),
         ),
         child: Center(
-          child: SingleChildScrollView( // Evita overflow en pantallas pequeñas
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo animado o Icono
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -82,20 +78,29 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 60),
 
                 if (appState.isAuthLoading)
-                  const CircularProgressIndicator(color: Colors.white)
+                  Column(
+                    children: [
+                      const CircularProgressIndicator(color: Colors.white),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Iniciando sesión...",
+                        style: TextStyle(color: Colors.grey[300]),
+                      )
+                    ],
+                  )
                 else
                   Column(
                     children: [
                       _GoogleSignInButton(
                         onPressed: () async {
-                          // 1. Sonido o feedback háptico (si tienes el método)
-                          // await appState.playClick();
-
-                          // 2. Ejecutar Login
                           await appState.login();
-
-                          // 3. Cerrar pantalla si fue exitoso
                           if (appState.isLoggedIn && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("¡Sesión iniciada correctamente!"),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
                             Navigator.of(context).pop();
                           }
                         },
@@ -139,24 +144,17 @@ class _GoogleSignInButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo de Google (simulado o imagen real)
-            Image.network(
-              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
-              height: 24,
-              width: 24,
-              errorBuilder: (context, error, stackTrace) =>
-              const Icon(Icons.g_mobiledata, color: Colors.red, size: 30),
-            ),
-            const SizedBox(width: 12),
-            const Text(
+             Icon(Icons.login, color: Colors.blueAccent), // Use standard icon instead of network image for reliability
+            SizedBox(width: 12),
+            Text(
               'Continuar con Google',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'Roboto', // Fuente estándar de Google
+                fontFamily: 'Roboto',
               ),
             ),
           ],

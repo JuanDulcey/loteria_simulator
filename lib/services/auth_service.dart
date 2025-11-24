@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart'; // 1. Importar Firebase
-import 'package:google_sign_in/google_sign_in.dart'; // 2. Importar Google
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import '../modules/auth/models/user_model.dart';
 
 class AuthService {
@@ -51,9 +52,15 @@ class AuthService {
 
         return userModel;
       }
+    } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print("❌ Firebase Auth Error: ${e.message} (${e.code})");
+      }
+      // Re-throw or handle specific errors here
     } catch (e) {
-      print("❌ Error en Login Google: $e");
-      // Aquí podrías lanzar una excepción personalizada si lo deseas
+      if (kDebugMode) {
+        print("❌ Error Genérico en Login Google: $e");
+      }
     }
     return null;
   }
@@ -61,7 +68,7 @@ class AuthService {
   /// Cerrar Sesión (REAL)
   Future<void> signOut() async {
     try {
-      // 1. Cerrar sesión en Google (para que pida cuenta la próxima vez)
+      // 1. Cerrar sesión en Google
       await _googleSignIn.signOut();
 
       // 2. Cerrar sesión en Firebase
@@ -70,7 +77,9 @@ class AuthService {
       // 3. Borrar datos locales
       await _prefs.remove(_userKey);
     } catch (e) {
-      print("Error al cerrar sesión: $e");
+      if (kDebugMode) {
+        print("Error al cerrar sesión: $e");
+      }
     }
   }
 
