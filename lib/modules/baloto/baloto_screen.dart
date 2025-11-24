@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // Importamos los widgets y pantallas necesarias
 import '../../widgets/balota_widget.dart';
-import '../ambiente1/ambiente1_screen.dart';
+import 'screens/generador_balota_screen.dart'; // IMPORTANTE: Nueva pantalla genérica
 import '../superbalota/super_balota_screen.dart';
 import 'baloto_dashboard_screen.dart';
 import '../../services/history_service.dart';
@@ -220,7 +220,13 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   activo: _misNumeros[0] == null,
                   bloqueado: false,
                   onTap: () => _irAAmbiente(
-                      0, Ambiente1Screen(numerosExcluidos: numerosExistentes)),
+                      0,
+                      GeneradorBalotaScreen(
+                        numerosExcluidos: numerosExistentes,
+                        titulo: "Ambiente 1: Aleatorio",
+                        tipo: TipoGeneracion.aleatorio,
+                        colorTema: Colors.blueAccent,
+                      )),
                 ),
 
                 // AMBIENTE 2
@@ -232,7 +238,13 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   activo: _misNumeros[1] == null,
                   bloqueado: _misNumeros[0] == null,
                   onTap: () => _irAAmbiente(
-                      1, Ambiente1Screen(numerosExcluidos: numerosExistentes)),
+                      1,
+                      GeneradorBalotaScreen(
+                        numerosExcluidos: numerosExistentes,
+                        titulo: "Ambiente 2: Estadístico",
+                        tipo: TipoGeneracion.estadistico,
+                        colorTema: Colors.purpleAccent,
+                      )),
                 ),
 
                 // AMBIENTE 3
@@ -244,7 +256,13 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   activo: _misNumeros[2] == null,
                   bloqueado: _misNumeros[1] == null,
                   onTap: () => _irAAmbiente(
-                      2, Ambiente1Screen(numerosExcluidos: numerosExistentes)),
+                      2,
+                      GeneradorBalotaScreen(
+                        numerosExcluidos: numerosExistentes,
+                        titulo: "Ambiente 3: Patrones",
+                        tipo: TipoGeneracion.patrones,
+                        colorTema: Colors.orangeAccent,
+                      )),
                 ),
 
                 // AMBIENTE 4
@@ -256,7 +274,13 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   activo: _misNumeros[3] == null,
                   bloqueado: _misNumeros[2] == null,
                   onTap: () => _irAAmbiente(
-                      3, Ambiente1Screen(numerosExcluidos: numerosExistentes)),
+                      3,
+                      GeneradorBalotaScreen(
+                        numerosExcluidos: numerosExistentes,
+                        titulo: "Ambiente 4: Histórico",
+                        tipo: TipoGeneracion.historico,
+                        colorTema: Colors.tealAccent,
+                      )),
                 ),
 
                 // AMBIENTE 5
@@ -268,7 +292,13 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   activo: _misNumeros[4] == null,
                   bloqueado: _misNumeros[3] == null,
                   onTap: () => _irAAmbiente(
-                      4, Ambiente1Screen(numerosExcluidos: numerosExistentes)),
+                      4,
+                      GeneradorBalotaScreen(
+                        numerosExcluidos: numerosExistentes,
+                        titulo: "Ambiente 5: Numerología",
+                        tipo: TipoGeneracion.numerologia,
+                        colorTema: Colors.pinkAccent,
+                      )),
                 ),
 
                 // SUPERBALOTA
