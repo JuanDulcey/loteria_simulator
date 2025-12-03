@@ -62,8 +62,8 @@ class LoteriaSimulatorApp extends StatelessWidget {
       return OnboardingScreen(appState: appState);
     }
 
-    // 2. Si ya vio tutorial pero NO está logueado -> Login
-    if (!appState.isLoggedIn) {
+    // 2. Si ya vio tutorial pero NO está logueado y NO es invitado -> Login
+    if (!appState.isLoggedIn && !appState.isGuestMode) {
       return LoginScreen(appState: appState);
     }
 
