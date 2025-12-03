@@ -1,10 +1,10 @@
 plugins {
     // Es posible que ya tengas esta línea, si es así, déjala como la tenías.
     // Si no, usa esta versión segura (7.3.0 o superior):
-    id("com.android.application") version "7.3.0" apply false
+    id("com.android.application") version "8.11.1" apply false
 
-    // ⚠️ ESTA ES LA LÍNEA CLAVE: Asegura que Kotlin sea 1.9.0 o superior
-    id("org.jetbrains.kotlin.android") version "1.9.0" apply false
+    // ⚠️ ESTA ES LA LÍNEA CLAVE: Asegura que Kotlin sea 2.2.20 o superior
+    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
 
     // El plugin de Flutter (necesario)
     id("dev.flutter.flutter-gradle-plugin") apply false
