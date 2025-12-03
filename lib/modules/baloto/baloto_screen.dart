@@ -43,7 +43,9 @@ class _BalotoScreenState extends State<BalotoScreen> {
   void _resetearTodo() {
     widget.appState?.playClick();
     setState(() {
-      for (int i = 0; i < 5; i++) _misNumeros[i] = null;
+      for (int i = 0; i < 5; i++) {
+        _misNumeros[i] = null;
+      }
       _superBalota = null;
     });
     widget.appState?.vibrate();
@@ -342,8 +344,8 @@ class _BalotoScreenState extends State<BalotoScreen> {
                             superBalota: _superBalota!);
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Row(
-                            children: const [
+                          content: const Row(
+                            children: [
                               Icon(Icons.check_circle, color: Colors.white),
                               SizedBox(width: 10),
                               Text("¡Ticket guardado exitosamente!"),

@@ -77,23 +77,25 @@ class MenuLoteriasScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    'https://images.unsplash.com/photo-1518688248740-759786498362?q=80&w=2070&auto=format&fit=crop',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [colorScheme.primary, colorScheme.secondary],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(Icons.casino, size: 80, color: Colors.white.withOpacity(0.1)),
-                        ),
-                      );
-                    },
+                   Container(
+                     color: const Color(0xFF0F172A), // Fallback background
+                   ),
+                   // Use a gradient or asset instead of network image to avoid loading issues in restricted envs
+                   Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF0F172A),
+                          const Color(0xFF1E293B),
+                          colorScheme.primary.withOpacity(0.5)
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Center(
+                       child: Icon(Icons.casino, size: 100, color: Colors.white.withOpacity(0.1)),
+                    ),
                   ),
                   Container(
                     decoration: BoxDecoration(
