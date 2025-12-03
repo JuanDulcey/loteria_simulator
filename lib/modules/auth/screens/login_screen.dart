@@ -15,16 +15,18 @@ class LoginScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.black26,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ),
+        leading: (Navigator.of(context).canPop())
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black26,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              )
+            : null,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -101,13 +103,14 @@ class LoginScreen extends StatelessWidget {
                                 backgroundColor: Colors.green,
                               ),
                             );
-                            Navigator.of(context).pop();
+                            // Navigator.pop eliminado: el cambio de estado en AppState
+                            // actualizará main.dart y mostrará MenuLoteriasScreen
                           }
                         },
                       ),
                       const SizedBox(height: 20),
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () => appState.enableGuestMode(),
                         child: Text(
                           'Continuar como invitado',
                           style: TextStyle(color: Colors.grey[500]),

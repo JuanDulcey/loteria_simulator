@@ -16,6 +16,7 @@ class AppState extends ChangeNotifier {
 
   UserModel? _currentUser;
   bool _isAuthLoading = false;
+  bool _isGuestMode = false;
 
   AppState(this._settingsService) {
     // 1. Cargar preferencias guardadas
@@ -40,6 +41,7 @@ class AppState extends ChangeNotifier {
 
   UserModel? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
+  bool get isGuestMode => _isGuestMode;
   bool get isAuthLoading => _isAuthLoading;
 
   /// CORRECCIÓN IMPORTANTE:
@@ -91,6 +93,11 @@ class AppState extends ChangeNotifier {
     await _settingsService.completeOnboarding();
   }
 
+  void enableGuestMode() {
+    _isGuestMode = true;
+    notifyListeners();
+  }
+
   // --- Auth Actions ---
 
   Future<void> login() async {
@@ -125,6 +132,7 @@ class AppState extends ChangeNotifier {
     try {
       await _authService.signOut();
       _currentUser = null;
+      _isGuestMode = false;
       await vibrate();
     } catch (e) {
       debugPrint('Logout failed: $e');
