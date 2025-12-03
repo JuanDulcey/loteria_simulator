@@ -1,10 +1,18 @@
 plugins {
-    // ...
+    // Es posible que ya tengas esta línea, si es así, déjala como la tenías.
+    // Si no, usa esta versión segura (7.3.0 o superior):
+    id("com.android.application") version "7.3.0" apply false
 
-    // Add the dependency for the Google services Gradle plugin
+    // ⚠️ ESTA ES LA LÍNEA CLAVE: Asegura que Kotlin sea 1.9.0 o superior
+    id("org.jetbrains.kotlin.android") version "1.9.0" apply false
+
+    // El plugin de Flutter (necesario)
+    id("dev.flutter.flutter-gradle-plugin") apply false
+
+    // El de Google Services que ya habías puesto
     id("com.google.gms.google-services") version "4.4.4" apply false
-
 }
+
 allprojects {
     repositories {
         google()
