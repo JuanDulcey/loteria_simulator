@@ -3,11 +3,14 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'settings_service.dart';
 import 'auth_service.dart';
+import 'history_service.dart'; // 1. IMPORTANTE: Importar HistoryService
 import '../modules/auth/models/user_model.dart';
 
 class AppState extends ChangeNotifier {
   final SettingsService _settingsService;
   late final AuthService _authService;
+  // 2. Instanciamos el servicio de historial
+  final HistoryService _historyService = HistoryService();
 
   late ThemeMode _themeMode;
   late bool _isSoundEnabled;
@@ -19,18 +22,19 @@ class AppState extends ChangeNotifier {
   bool _isGuestMode = false;
 
   AppState(this._settingsService) {
-    // 1. Cargar preferencias guardadas
     _themeMode = _settingsService.themeMode;
     _isSoundEnabled = _settingsService.isSoundEnabled;
     _isHapticEnabled = _settingsService.isHapticEnabled;
     _hasSeenOnboarding = _settingsService.hasSeenOnboarding;
 
-    // 2. Inicializar AuthService inyectando las preferencias
-    // Esto conecta con el AuthService que arreglamos en el paso anterior
     _authService = AuthService(_settingsService.prefs);
-
-    // 3. Cargar usuario si ya existía sesión guardada localmente
     _currentUser = _authService.getCurrentUser();
+
+    // 3. SINCRONIZACIÓN AL INICIAR APP
+    // Si la app se abre y ya hay una sesión guardada, sincronizamos en segundo plano
+    if (_currentUser != null) {
+      _historyService.sincronizarDesdeNube().then((_) => notifyListeners());
+    }
   }
 
   // --- Getters ---
@@ -44,11 +48,8 @@ class AppState extends ChangeNotifier {
   bool get isGuestMode => _isGuestMode;
   bool get isAuthLoading => _isAuthLoading;
 
-  /// CORRECCIÓN IMPORTANTE:
-  /// Detecta si la app se ve oscura, incluso si está en modo "Automático/System"
   bool get isDarkMode {
     if (_themeMode == ThemeMode.system) {
-      // Preguntamos al sistema operativo cuál es el brillo actual
       return PlatformDispatcher.instance.platformBrightness == Brightness.dark;
     }
     return _themeMode == ThemeMode.dark;
@@ -64,7 +65,6 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> toggleTheme() async {
-    // Si es Dark (o Sistema Dark), pasamos a Light. De lo contrario a Dark.
     if (isDarkMode) {
       await setThemeMode(ThemeMode.light);
     } else {
@@ -98,25 +98,26 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Auth Actions ---
+  // --- Auth Actions con Sync ---
 
   Future<void> login() async {
     if (_isAuthLoading) return;
-
     _isAuthLoading = true;
     notifyListeners();
 
     try {
-      // Llamada al servicio real de Firebase/Google
       final user = await _authService.signInWithGoogle();
-
       if (user != null) {
         _currentUser = user;
-        await vibrateSuccess(); // Feedback táctil si es exitoso
+        _isGuestMode = false; // Ya no es invitado
+
+        // 4. MAGIA AQUÍ: Sincronizar historial al loguearse
+        await _historyService.sincronizarDesdeNube();
+
+        await vibrateSuccess();
       }
     } catch (e) {
       debugPrint('Login failed: $e');
-      // Aquí podrías agregar una variable de error para mostrar en la UI
     } finally {
       _isAuthLoading = false;
       notifyListeners();
@@ -125,14 +126,18 @@ class AppState extends ChangeNotifier {
 
   Future<void> logout() async {
     if (_isAuthLoading) return;
-
     _isAuthLoading = true;
     notifyListeners();
 
     try {
+      // 1. Cerrar sesión en servicios
       await _authService.signOut();
       _currentUser = null;
       _isGuestMode = false;
+
+      // 2. MAGIA AQUÍ: Limpiar historial local para proteger privacidad
+      await _historyService.limpiarHistorial();
+
       await vibrate();
     } catch (e) {
       debugPrint('Logout failed: $e');
@@ -145,20 +150,14 @@ class AppState extends ChangeNotifier {
   // --- Feedback Actions ---
 
   Future<void> playClick() async {
-    if (_isSoundEnabled) {
-      await SystemSound.play(SystemSoundType.click);
-    }
+    if (_isSoundEnabled) await SystemSound.play(SystemSoundType.click);
   }
 
   Future<void> vibrate() async {
-    if (_isHapticEnabled) {
-      await HapticFeedback.lightImpact();
-    }
+    if (_isHapticEnabled) await HapticFeedback.lightImpact();
   }
 
   Future<void> vibrateSuccess() async {
-    if (_isHapticEnabled) {
-      await HapticFeedback.mediumImpact();
-    }
+    if (_isHapticEnabled) await HapticFeedback.mediumImpact();
   }
 }

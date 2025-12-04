@@ -1,31 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:math';
+import '../../../widgets/balota_widget.dart';
 import '../../../services/loteria_service.dart';
 import '../../../services/app_state.dart';
-import '../../../widgets/balota_widget.dart';
 
-enum TipoGeneracion {
-  aleatorio,
-  estadistico,
-  patrones,
-  historico,
-  numerologia,
-}
+// Enum para identificar qué lógica usar
+enum TipoGeneracion { aleatorio, estadistico, patrones, historico, numerologia }
 
 class GeneradorBalotaScreen extends StatefulWidget {
   final List<int> numerosExcluidos;
   final String titulo;
   final TipoGeneracion tipo;
   final Color colorTema;
-  // We need to access AppState. Since I can't easily change the constructor signature everywhere without breaking things
-  // unless I do it consistently.
-  // I will add appState as a parameter.
-  // If I can't modify the caller immediately, I'll have an issue.
-  // Let's check BalotoScreen again. It calls GeneradorBalotaScreen constructor.
-  // I will update BalotoScreen first? No, I am updating this file first.
-  // I will add the parameter but make it optional to avoid immediate break, or just break it and fix caller next.
-  // I'll break and fix caller.
   final AppState? appState;
 
   const GeneradorBalotaScreen({
@@ -44,83 +30,92 @@ class GeneradorBalotaScreen extends StatefulWidget {
 class _GeneradorBalotaScreenState extends State<GeneradorBalotaScreen> with SingleTickerProviderStateMixin {
   final LoteriaService _loteriaService = LoteriaService();
   int? _numeroGenerado;
-  bool _simulando = false;
+  bool _isSimulating = false;
 
-  // Animation
-  late AnimationController _animationController;
+  // Animación
+  int _numeroAnimacion = 0;
+  Timer? _timerAnimacion;
+  late AnimationController _animController;
   late Animation<double> _scaleAnimation;
-  int _tempNumber = 1;
-  Timer? _shuffleTimer;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+    // Controlador para el efecto de "rebote" al aparecer la balota
+    _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 600),
     );
-    _scaleAnimation = CurvedAnimation(parent: _animationController, curve: Curves.elasticOut);
+    _scaleAnimation = CurvedAnimation(parent: _animController, curve: Curves.elasticOut);
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _shuffleTimer?.cancel();
+    _timerAnimacion?.cancel();
+    _animController.dispose();
     super.dispose();
   }
 
-  void _simularYGenerar() async {
+  void _iniciarSimulacion() async {
+    if (_isSimulating) return;
+
     setState(() {
-      _simulando = true;
+      _isSimulating = true;
+      _numeroGenerado = null;
     });
 
     widget.appState?.playClick();
 
-    // Start shuffling animation
-    _shuffleTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+    // 1. Animación visual (Barajar números rápidamente)
+    _timerAnimacion = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
-          _tempNumber = Random().nextInt(43) + 1; // Baloto goes up to 43 usually
+          // Mostramos números al azar solo visualmente
+          _numeroAnimacion = _loteriaService.generarNumeroUnico([]);
         });
-        widget.appState?.vibrate(); // Light vibration on shuffle
+        // Vibración suave tipo "tic-tac" si lo deseas
+        // widget.appState?.vibrate();
       }
     });
 
-    // Simulación de "pensando" (delay estético)
-    // Increase duration for dramatic effect
-    await Future.delayed(const Duration(milliseconds: 2000));
+    // 2. Tiempo de espera para suspenso (1.5 segundos)
+    await Future.delayed(const Duration(milliseconds: 1500));
 
-    _shuffleTimer?.cancel();
+    // 3. Detener animación
+    _timerAnimacion?.cancel();
 
     if (!mounted) return;
 
-    setState(() {
-      switch (widget.tipo) {
-        case TipoGeneracion.aleatorio:
-          _numeroGenerado = _loteriaService.generarNumeroUnico(widget.numerosExcluidos);
-          break;
-        case TipoGeneracion.estadistico:
-          _numeroGenerado = _loteriaService.generarNumeroEstadistico(widget.numerosExcluidos);
-          break;
-        case TipoGeneracion.patrones:
-          _numeroGenerado = _loteriaService.generarNumeroPatrones(widget.numerosExcluidos);
-          break;
-        case TipoGeneracion.historico:
-          _numeroGenerado = _loteriaService.generarNumeroHistorico(widget.numerosExcluidos);
-          break;
-        case TipoGeneracion.numerologia:
-          _numeroGenerado = _loteriaService.generarNumeroNumerologia(widget.numerosExcluidos);
-          break;
-      }
-      _simulando = false;
-    });
+    // 4. Seleccionar lógica matemática real según el tipo
+    int resultadoFinal = 1;
+    switch (widget.tipo) {
+      case TipoGeneracion.aleatorio:
+        resultadoFinal = _loteriaService.generarNumeroUnico(widget.numerosExcluidos);
+        break;
+      case TipoGeneracion.estadistico:
+        resultadoFinal = _loteriaService.generarNumeroEstadistico(widget.numerosExcluidos);
+        break;
+      case TipoGeneracion.patrones:
+        resultadoFinal = _loteriaService.generarNumeroPatrones(widget.numerosExcluidos);
+        break;
+      case TipoGeneracion.historico:
+        resultadoFinal = _loteriaService.generarNumeroHistorico(widget.numerosExcluidos);
+        break;
+      case TipoGeneracion.numerologia:
+        resultadoFinal = _loteriaService.generarNumeroNumerologia(widget.numerosExcluidos);
+        break;
+    }
 
-    // Play success sound/haptic
+    // 5. Mostrar resultado con éxito
     widget.appState?.vibrateSuccess();
-    _animationController.forward(from: 0.0);
+    setState(() {
+      _numeroGenerado = resultadoFinal;
+      _isSimulating = false;
+    });
+    _animController.forward(from: 0.0); // Iniciar animación de entrada
   }
 
-  void _confirmarYSalir() {
+  void _confirmarSeleccion() {
     if (_numeroGenerado != null) {
       widget.appState?.playClick();
       Navigator.pop(context, _numeroGenerado);
@@ -129,96 +124,149 @@ class _GeneradorBalotaScreenState extends State<GeneradorBalotaScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(widget.titulo),
+        title: Text(widget.titulo, style: const TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: widget.colorTema,
         foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _simulando ? 'Mezclando...' : 'Generando Balota',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Text(
-                'Números prohibidos (ya jugados): ${widget.numerosExcluidos.isEmpty ? "Ninguno" : widget.numerosExcluidos.join(", ")}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 40),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // --- SECCIÓN DE NÚMEROS YA JUGADOS (HISTORIAL VISUAL) ---
+              if (widget.numerosExcluidos.isNotEmpty) ...[
+                Text(
+                  "Números bloqueados (ya jugados):",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  children: widget.numerosExcluidos
+                      .map((n) => Chip(
+                    label: Text('$n', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    backgroundColor: isDark ? Colors.grey[800] : Colors.grey[200],
+                    labelStyle: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ))
+                      .toList(),
+                ),
+                const SizedBox(height: 40),
+              ],
 
-            // Área de visualización
-            SizedBox(
-              height: 120,
-              child: _simulando
-                  ? Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: widget.colorTema.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: widget.colorTema, width: 2),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "$_tempNumber",
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: widget.colorTema
-                          ),
+              // --- ÁREA DE GENERACIÓN (CÍRCULO CENTRAL) ---
+              Container(
+                height: 180,
+                width: 180,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.colorTema.withOpacity(0.3),
+                      blurRadius: 30,
+                      spreadRadius: 2,
+                    )
+                  ],
+                  border: Border.all(
+                    color: _isSimulating ? widget.colorTema : Colors.grey.withOpacity(0.2),
+                    width: 4,
+                  ),
+                ),
+                child: Center(
+                  child: _isSimulating
+                      ? Text(
+                    '$_numeroAnimacion',
+                    style: TextStyle(
+                      fontSize: 70,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[400],
+                      fontFamily: 'Monospace', // Estilo digital
+                    ),
+                  )
+                      : _numeroGenerado != null
+                      ? ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: BalotaWidget(numero: _numeroGenerado!, size: 130),
+                  )
+                      : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.touch_app_rounded, size: 50, color: Colors.grey[300]),
+                      const SizedBox(height: 5),
+                      Text("Iniciar", style: TextStyle(color: Colors.grey[400]))
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 60),
+
+              // --- BOTONES DE ACCIÓN ---
+              if (_numeroGenerado == null)
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton.icon(
+                    onPressed: _isSimulating ? null : _iniciarSimulacion,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: widget.colorTema,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    icon: _isSimulating
+                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                        : const Icon(Icons.play_arrow_rounded, size: 30),
+                    label: Text(
+                      _isSimulating ? "  CALCULANDO..." : "GENERAR NÚMERO",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton.icon(
+                        onPressed: _confirmarSeleccion,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green, // Color éxito
+                          foregroundColor: Colors.white,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        icon: const Icon(Icons.check_circle_rounded, size: 28),
+                        label: const Text(
+                          "CONFIRMAR ESTE NÚMERO",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
-                    )
-                  : _numeroGenerado != null
-                  ? ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: BalotaWidget(numero: _numeroGenerado!, size: 100),
-                    )
-                  : Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.question_mark, size: 50, color: Colors.grey),
                     ),
-            ),
-
-            const SizedBox(height: 50),
-
-            // Botones Lógicos
-            if (_numeroGenerado == null)
-              ElevatedButton.icon(
-                onPressed: _simulando ? null : _simularYGenerar,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('INICIAR SIMULACIÓN'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  backgroundColor: widget.colorTema,
-                  foregroundColor: Colors.white,
+                    const SizedBox(height: 15),
+                    TextButton.icon(
+                      onPressed: _iniciarSimulacion,
+                      style: TextButton.styleFrom(foregroundColor: Colors.grey),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text("Probar otra vez"),
+                    )
+                  ],
                 ),
-              )
-            else
-              ElevatedButton.icon(
-                onPressed: _confirmarYSalir,
-                icon: const Icon(Icons.check),
-                label: const Text('CONFIRMAR ESTE NÚMERO'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

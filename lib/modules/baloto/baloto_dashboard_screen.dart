@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/simulation_service.dart';
-import '../../services/history_service.dart'; // IMPORTANTE: Importar HistoryService
+import '../../services/history_service.dart';
 import '../../widgets/balota_widget.dart';
 
 class BalotoDashboardScreen extends StatefulWidget {
@@ -12,7 +12,7 @@ class BalotoDashboardScreen extends StatefulWidget {
 
 class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
   final SimulationService _simService = SimulationService();
-  // Instanciamos el HistoryService para poder borrar también la base de datos
+  // Instanciamos HistoryService para guardar resultados localmente
   final HistoryService _historyService = HistoryService();
 
   bool _cargando = false;
@@ -33,56 +33,54 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
   Future<void> _ejecutarSimulacion(int cantidad) async {
     setState(() => _cargando = true);
 
-    // CORRECCIÓN 1: LIMPIEZA PREVIA
-    // Limpiamos la memoria RAM antes de empezar para que este lote sea
-    // totalmente nuevo y los números cambien drásticamente.
+    // 1. LIMPIEZA PREVIA (RAM)
+    // Para que el lote sea estadísticamente puro y nuevo.
     _simService.limpiarHistorial();
 
-    // Ejecutamos la nueva simulación
+    // 2. EJECUTAR SIMULACIÓN MATEMÁTICA
     await _simService.simularLote(cantidad);
 
-    // Obtenemos las nuevas estadísticas frescas
+    // 3. PREPARAR DATOS
     final nuevasStats = _simService.obtenerEstadisticas();
 
-    // CORRECCIÓN 2: GUARDADO SEGURO
-    // Extraemos los datos asegurándonos de crear una copia limpia para el historial
+    // Convertimos la lista a un formato seguro para JSON
     final topCalientes = (nuevasStats['calientes'] as List)
-        .map((e) => Map<String, dynamic>.from(e)) // Copia de seguridad
+        .map((e) => Map<String, dynamic>.from(e))
         .toList();
 
     final superHot = nuevasStats['superHot'] as int;
 
-    // Guardamos en el Historial Permanente
+    // 4. GUARDAR SOLO EN LOCAL (No toca la nube)
     await _historyService.guardarSimulacion(
         cantidad: cantidad,
         topCalientes: topCalientes,
         superBalotaMasFrecuente: superHot
     );
 
-    // Actualizamos la UI
+    // 5. ACTUALIZAR UI
     _actualizarStats();
     setState(() => _cargando = false);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('¡$cantidad sorteos nuevos analizados y guardados!')),
+        SnackBar(content: Text('¡$cantidad sorteos analizados y guardados localmente!')),
       );
     }
   }
 
-  // CORRECCIÓN 3: BORRADO TOTAL
   void _limpiarData() async {
-    // 1. Borramos memoria RAM (Gráficas actuales)
+    // Borrar RAM
     _simService.limpiarHistorial();
     _actualizarStats();
 
-    // 2. Borramos Disco Duro (Historial de Operaciones)
+    // Borrar Disco Local (SharedPreferences)
+    // NOTA: Esto no borra los tickets que subiste a Firestore.
     await _historyService.limpiarHistorial();
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('♻️ Se ha eliminado todo el historial (RAM y Disco)'),
+          content: Text('♻️ Historial local eliminado'),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -104,11 +102,8 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            // Habilitamos el botón si hay datos en pantalla OJO:
-            // Aunque la pantalla esté vacía, el usuario podría querer borrar el historial de disco,
-            // así que dejamos el botón siempre habilitado para que funcione como "Reset Total".
             onPressed: _limpiarData,
-            tooltip: 'Borrar todo el historial',
+            tooltip: 'Borrar historial local',
           )
         ],
       ),
@@ -129,7 +124,7 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- SECCIÓN 1: CONTROLES ---
+            // --- CONTROLES ---
             const Text("Simulación Masiva", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 10),
             Row(
@@ -144,7 +139,7 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
 
             const SizedBox(height: 25),
 
-            // --- SECCIÓN 2: RESUMEN ---
+            // --- RESUMEN ---
             Card(
               color: Colors.white,
               elevation: 4,
@@ -172,12 +167,12 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
 
             const SizedBox(height: 20),
 
-            // --- SECCIÓN 3: ESTADÍSTICAS ---
+            // --- ESTADÍSTICAS ---
             if (totalJugadas > 0) ...[
               const Text("Tendencias de este lote", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               const SizedBox(height: 10),
 
-              // NÚMEROS CALIENTES
+              // Calientes
               _buildStatCard(
                 title: "Números Calientes 🔥",
                 subtitle: "Mayor frecuencia en este lote",
@@ -190,7 +185,7 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
 
               const SizedBox(height: 10),
 
-              // NÚMEROS FRÍOS
+              // Fríos
               _buildStatCard(
                 title: "Números Fríos ❄️",
                 subtitle: "Menor frecuencia en este lote",
@@ -203,7 +198,7 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
 
               const SizedBox(height: 10),
 
-              // SUPERBALOTA
+              // Superbalota
               _buildStatCard(
                 title: "Superbalota Rey 👑",
                 subtitle: "La reina de este lote",

@@ -3,8 +3,10 @@ import 'dart:math';
 class LoteriaService {
   final Random _random = Random();
 
-  /// MÉTODO 1: Para el juego paso a paso (Ambientes)
-  /// Genera un solo número asegurando que no esté en la lista de excluidos.
+  // --- MÉTODOS DE JUEGO PASO A PASO (UI) ---
+
+  /// Genera un número asegurando que no se repita con los anteriores.
+  /// Usado en el Ambiente 1 (Aleatorio).
   int generarNumeroUnico(List<int> excluidos) {
     int numero;
     do {
@@ -13,45 +15,48 @@ class LoteriaService {
     return numero;
   }
 
-  /// Genera un número "Estadístico" (Por ahora, similar a aleatorio pero placeholder para lógica futura)
+  /// Ambiente 2: Estadístico
+  /// (Por ahora aleatorio, listo para conectar con HistoryService en el futuro)
   int generarNumeroEstadistico(List<int> excluidos) {
-    // TODO: Implementar lógica basada en estadísticas reales o simuladas
+    // TODO: Conectar con HistoryService.analizarPatronesPersonales()
     return generarNumeroUnico(excluidos);
   }
 
-  /// Genera un número basado en "Patrones"
+  /// Ambiente 3: Patrones
   int generarNumeroPatrones(List<int> excluidos) {
-    // TODO: Implementar lógica de patrones (e.g., pares/impares, sumas)
+    // TODO: Implementar lógica de pares/impares
     return generarNumeroUnico(excluidos);
   }
 
-  /// Genera un número basado en "Histórico"
+  /// Ambiente 4: Histórico
   int generarNumeroHistorico(List<int> excluidos) {
-    // TODO: Implementar lógica basada en historial de sorteos pasados
     return generarNumeroUnico(excluidos);
   }
 
-  /// Genera un número basado en "Numerología"
+  /// Ambiente 5: Numerología
   int generarNumeroNumerologia(List<int> excluidos) {
-    // TODO: Implementar lógica de numerología
     return generarNumeroUnico(excluidos);
   }
 
-  /// MÉTODO 2: Para el Dashboard (Simulación Masiva)
-  /// Genera los 5 números de golpe, ordenados y sin repetir.
+  // --- MÉTODOS DE SIMULACIÓN MASIVA (DASHBOARD) ---
+
+  /// Genera un ticket completo de golpe (para simular 10,000 veces rápido).
   List<int> generarNumerosPrincipales() {
     final Set<int> numeros = {};
 
+    // Usamos Set para garantizar unicidad automática
     while (numeros.length < 5) {
       int numero = _random.nextInt(43) + 1;
       numeros.add(numero);
     }
 
+    // Retornamos la lista ordenada para facilitar el análisis
     final List<int> listaOrdenada = numeros.toList()..sort();
     return listaOrdenada;
   }
 
-  /// MÉTODO 3: Superbalota (Común para ambos)
+  // --- SUPERBALOTA ---
+
   int generarSuperBalota() {
     return _random.nextInt(16) + 1;
   }
