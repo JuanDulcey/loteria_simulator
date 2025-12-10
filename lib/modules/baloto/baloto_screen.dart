@@ -61,7 +61,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
-          'SIMULADOR BALOTO',
+          'SIMULADOR',
           style: TextStyle(letterSpacing: 1.0, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,

@@ -14,89 +14,117 @@ class MenuLoteriasScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Update system UI overlay based on theme
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    // Configuración de la barra de estado
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
     ));
 
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. CABECERA PREMIUM
+          // ---------------------------------------------------------
+          // 1. CABECERA PREMIUM (SliverAppBar)
+          // ---------------------------------------------------------
           SliverAppBar(
-            expandedHeight: 250.0,
+            expandedHeight: 220.0,
             floating: false,
             pinned: true,
-            backgroundColor: colorScheme.surface,
+            backgroundColor: isDark ? const Color(0xFF0F172A) : colorScheme.primary,
+            elevation: 0,
+
+            // ACCIONES (PERFIL Y AJUSTES)
             actions: [
-               IconButton(
-                 icon: Icon(appState.isLoggedIn ? Icons.account_circle : Icons.account_circle_outlined),
-                 onPressed: () {
-                   if (appState.isLoggedIn) {
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(builder: (context) => ProfileScreen(appState: appState)),
-                     );
-                   } else {
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(builder: (context) => LoginScreen(appState: appState)),
-                     );
-                   }
-                 },
-               ),
-               IconButton(
-                 icon: const Icon(Icons.settings),
-                 onPressed: () {
-                   Navigator.push(
-                     context,
-                     MaterialPageRoute(builder: (context) => SettingsScreen(appState: appState)),
-                   );
-                 },
-               ),
+              IconButton(
+                // Si está logueado, icono relleno. Si no, contorno.
+                icon: Icon(
+                  appState.isLoggedIn ? Icons.person : Icons.person_outline,
+                  color: Colors.white,
+                ),
+                tooltip: appState.isLoggedIn ? 'Mi Perfil' : 'Iniciar Sesión',
+                onPressed: () {
+                  if (appState.isLoggedIn) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileScreen(appState: appState)),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen(appState: appState)),
+                    );
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                tooltip: 'Configuración',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsScreen(appState: appState)),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
             ],
+
+            // ESPACIO FLEXIBLE (Fondo con Gradiente y Diseño)
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: const Text(
-                'COLOMBIA LOTTERY',
+                'LOTERÍA SIMULATOR',
                 style: TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w900,
                   fontSize: 16,
-                  letterSpacing: 1.5,
-                  shadows: [Shadow(color: Colors.black, blurRadius: 10)],
+                  letterSpacing: 1.2,
+                  shadows: [Shadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 2))],
                 ),
               ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                   Container(
-                     color: const Color(0xFF0F172A), // Fallback background
-                   ),
-                   // Use a gradient or asset instead of network image to avoid loading issues in restricted envs
-                   Container(
+                  // Fondo base
+                  Container(color: const Color(0xFF0F172A)),
+
+                  // Gradiente Decorativo (SIN CONST para que funcione withOpacity)
+                  Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
                           const Color(0xFF0F172A),
+                          colorScheme.primary.withValues(alpha: 0.5), // Aquí estaba el error antes
                           const Color(0xFF1E293B),
-                          colorScheme.primary.withOpacity(0.5)
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: Center(
-                       child: Icon(Icons.casino, size: 100, color: Colors.white.withOpacity(0.1)),
+                  ),
+
+                  // Icono gigante de fondo (Marca de agua)
+                  Positioned(
+                    right: -30,
+                    bottom: -30,
+                    child: Transform.rotate(
+                      angle: -0.2,
+                      child: Icon(
+                        Icons.casino_rounded,
+                        size: 180,
+                        color: Colors.white.withValues(alpha: 0.05), // Opacidad suave
+                      ),
                     ),
                   ),
+
+                  // Sombra inferior para que el texto se lea bien
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -104,7 +132,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.8), // Always dark overlay for text visibility
+                          Colors.black.withValues(alpha: 0.7),
                         ],
                         stops: const [0.6, 1.0],
                       ),
@@ -115,22 +143,36 @@ class MenuLoteriasScreen extends StatelessWidget {
             ),
           ),
 
+          // ---------------------------------------------------------
           // 2. LISTA DE LOTERÍAS
+          // ---------------------------------------------------------
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                Text(
-                  "Sorteos Disponibles",
-                  style: textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
+
+                // TÍTULO DE SECCIÓN
+                Row(
+                  children: [
+                    Container(width: 4, height: 24, decoration: BoxDecoration(color: colorScheme.primary, borderRadius: BorderRadius.circular(2))),
+                    const SizedBox(width: 10),
+                    Text(
+                      "Sorteos Disponibles",
+                      style: textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 5),
-                Text(
-                  "Selecciona tu juego favorito para empezar a simular",
-                  style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                Padding(
+                  padding: const EdgeInsets.only(left: 14),
+                  child: Text(
+                    "Selecciona tu juego favorito",
+                    style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                  ),
                 ),
                 const SizedBox(height: 25),
 
@@ -182,24 +224,26 @@ class MenuLoteriasScreen extends StatelessWidget {
                   colorFin: const Color(0xFFFFD700),
                   icono: Icons.auto_awesome_rounded,
                   esActiva: false,
-                  textColor: Colors.black87,
+                  textColor: Colors.black87, // Texto oscuro para contraste en dorado
                 ),
 
                 const SizedBox(height: 40),
 
-                // Button to restart tutorial manually (Alternative to settings)
+                // BOTÓN DE TUTORIAL
                 Center(
                   child: TextButton.icon(
                     icon: Icon(Icons.help_outline, color: colorScheme.secondary),
                     label: Text("Ver Tutorial de Bienvenida", style: TextStyle(color: colorScheme.secondary)),
                     onPressed: () {
-                         Navigator.push(
-                           context,
-                           MaterialPageRoute(builder: (context) => OnboardingScreen(appState: appState)),
-                         );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => OnboardingScreen(appState: appState)),
+                      );
                     },
                   ),
-                )
+                ),
+
+                const SizedBox(height: 40), // Espacio extra al final
               ]),
             ),
           ),
@@ -208,6 +252,7 @@ class MenuLoteriasScreen extends StatelessWidget {
     );
   }
 
+  /// WIDGET CONSTRUCTOR DE TARJETAS
   Widget _buildPremiumCard(
       BuildContext context, {
         required String nombre,
@@ -220,12 +265,16 @@ class MenuLoteriasScreen extends StatelessWidget {
         Widget? destino,
         Color textColor = Colors.white,
       }) {
+
+    // Eliminamos const aquí para que flutter no se queje
+    final borderRadius = BorderRadius.circular(24);
+
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: borderRadius,
         boxShadow: [
           BoxShadow(
-            color: colorInicio.withOpacity(0.3),
+            color: colorInicio.withValues(alpha: 0.25), // Sombra del color de la tarjeta
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -234,7 +283,7 @@ class MenuLoteriasScreen extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: borderRadius,
           onTap: () {
             if (esActiva && destino != null) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => destino));
@@ -244,24 +293,26 @@ class MenuLoteriasScreen extends StatelessWidget {
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    "$nombre está en construcción 🚧",
-                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                  content: Row(
+                    children: [
+                      const Icon(Icons.construction, color: Colors.orange),
+                      const SizedBox(width: 10),
+                      Text(
+                        "$nombre está en construcción",
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                      ),
+                    ],
                   ),
                   behavior: SnackBarBehavior.floating,
                   backgroundColor: theme.cardColor,
-                  action: SnackBarAction(
-                    label: 'OK',
-                    onPressed: (){},
-                    textColor: theme.colorScheme.primary
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               );
             }
           },
           child: Ink(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: borderRadius,
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -269,37 +320,41 @@ class MenuLoteriasScreen extends StatelessWidget {
               ),
             ),
             child: Container(
+              // Si es destacada es más alta
               constraints: BoxConstraints(
                   minHeight: esDestacada ? 140 : 100
               ),
               child: Stack(
                 children: [
-                  // Fondo decorativo
+                  // 1. Icono Gigante de Fondo (Decorativo)
                   Positioned(
                     right: -20,
                     top: -20,
-                    child: Icon(
-                      icono,
-                      size: esDestacada ? 150 : 100,
-                      color: Colors.white.withOpacity(0.1),
+                    child: Transform.rotate(
+                      angle: 0.2, // Rotación leve
+                      child: Icon(
+                        icono,
+                        size: esDestacada ? 160 : 120,
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                   ),
 
-                  // Contenido
+                  // 2. Contenido Principal
                   Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(24.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Icono Principal
+                        // Círculo del Icono
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
                           ),
-                          child: Icon(icono, color: textColor, size: esDestacada ? 30 : 24),
+                          child: Icon(icono, color: textColor, size: esDestacada ? 32 : 24),
                         ),
                         const SizedBox(width: 20),
 
@@ -314,33 +369,36 @@ class MenuLoteriasScreen extends StatelessWidget {
                                 nombre,
                                 style: TextStyle(
                                   color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: esDestacada ? 24 : 18,
-                                  letterSpacing: 1.2,
+                                  fontWeight: FontWeight.w900, // Extra negrita
+                                  fontSize: esDestacada ? 22 : 18,
+                                  letterSpacing: 1.0,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Text(
                                 subtitulo,
                                 style: TextStyle(
-                                  color: textColor.withOpacity(0.8),
-                                  fontSize: esDestacada ? 14 : 12,
+                                  color: textColor.withValues(alpha: 0.9),
+                                  fontSize: esDestacada ? 13 : 11,
                                 ),
                               ),
+
+                              // Badge de "Próximamente" si no está activa
                               if (!esActiva) ...[
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 10),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.black.withValues(alpha: 0.25),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
                                     "PRÓXIMAMENTE",
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
+                                        color: Colors.white.withValues(alpha: 0.95),
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5
                                     ),
                                   ),
                                 )
@@ -349,9 +407,9 @@ class MenuLoteriasScreen extends StatelessWidget {
                           ),
                         ),
 
-                        // Flecha indicadora
+                        // Flecha indicadora (solo si activa)
                         if (esActiva)
-                          Icon(Icons.arrow_forward_ios_rounded, color: textColor.withOpacity(0.7), size: 20),
+                          Icon(Icons.arrow_forward_ios_rounded, color: textColor.withValues(alpha: 0.6), size: 20),
                       ],
                     ),
                   ),

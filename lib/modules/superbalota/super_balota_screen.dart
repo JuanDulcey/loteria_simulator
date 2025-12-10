@@ -100,7 +100,7 @@ class _SuperBalotaScreenState extends State<SuperBalotaScreen> with SingleTicker
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDark
-               ? [theme.scaffoldBackgroundColor, Colors.red.shade900.withOpacity(0.3)]
+               ? [theme.scaffoldBackgroundColor, Colors.red.shade900.withValues(alpha : 0.3)]
                : [Colors.white, Colors.red.shade50],
           ),
         ),
@@ -170,7 +170,7 @@ class _SuperBalotaScreenState extends State<SuperBalotaScreen> with SingleTicker
                             width: 100,
                             height: 100,
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.red.withOpacity(0.1) : Colors.red.shade100,
+                              color: isDark ? Colors.red.withValues(alpha: 0.1) : Colors.red.shade100,
                               shape: BoxShape.circle,
                               border: Border.all(
                                   color: Colors.red.shade300, width: 2),
