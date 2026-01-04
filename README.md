@@ -81,3 +81,8 @@ Este proyecto representó un reto agradable y enriquecedor. Programar en diferen
 Es un ejemplo sólido de cómo una idea tradicional puede transformarse en una herramienta digital moderna y eficiente.
 
 Desarrollado por Juan Dulcey.
+
+### LICENSE
+
+Este proyecto utiliza la **Apache License 2.0**, una licencia permisiva que permite uso comercial,
+modificación y distribución, e incluye protección explícita de patentes.
