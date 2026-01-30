@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-// Importamos los widgets y pantallas necesarias
+
 import '../../widgets/balota_widget.dart';
-import 'screens/generador_balota_screen.dart'; // IMPORTANTE: Nueva pantalla genérica
+import 'screens/generador_balota_screen.dart';
 import '../superbalota/super_balota_screen.dart';
 import 'baloto_dashboard_screen.dart';
 import '../../services/history_service.dart';
@@ -120,7 +120,7 @@ class _BalotoScreenState extends State<BalotoScreen> {
                   decoration: BoxDecoration(
                     color: theme.brightness == Brightness.dark
                            ? theme.colorScheme.surface
-                           : const Color(0xFFFFFBE6), // Paper color in light mode, surface in dark
+                           : const Color(0xFFFFFBE6),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(

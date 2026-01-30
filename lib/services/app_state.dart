@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'settings_service.dart';
 import 'auth_service.dart';
-import 'history_service.dart'; // 1. IMPORTANTE: Importar HistoryService
+import 'history_service.dart';
 import '../modules/auth/models/user_model.dart';
 
 class AppState extends ChangeNotifier {
@@ -109,7 +109,7 @@ class AppState extends ChangeNotifier {
       final user = await _authService.signInWithGoogle();
       if (user != null) {
         _currentUser = user;
-        _isGuestMode = false; // Ya no es invitado
+        _isGuestMode = false;
 
         // 4. MAGIA AQUÍ: Sincronizar historial al loguearse
         await _historyService.sincronizarDesdeNube();

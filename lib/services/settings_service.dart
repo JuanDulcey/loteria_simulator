@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService {
-  static const String _keyTheme = 'theme_mode'; // 'light', 'dark', 'system'
+  static const String _keyTheme = 'theme_mode';
   static const String _keySound = 'sound_enabled';
   static const String _keyHaptic = 'haptic_enabled';
   static const String _keyOnboarding = 'onboarding_seen';
@@ -64,7 +64,6 @@ class SettingsService {
     await _prefs.setBool(_keyOnboarding, true);
   }
 
-  // Method to reset onboarding for testing purposes
   Future<void> resetOnboarding() async {
     await _prefs.remove(_keyOnboarding);
   }

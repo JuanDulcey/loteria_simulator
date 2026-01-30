@@ -23,7 +23,7 @@ class HistoryService {
     if (user == null) return;
 
     try {
-      debugPrint("🔄 Iniciando sincronización con la nube...");
+      debugPrint("Iniciando sincronización con la nube...");
 
       final querySnapshot = await _db
           .collection('users')
@@ -63,13 +63,13 @@ class HistoryService {
       if (agregados > 0) {
         List<String> nuevaListaString = listaLocal.map((e) => jsonEncode(e)).toList();
         await prefs.setStringList(_keyHistorial, nuevaListaString);
-        debugPrint("✅ Sincronización completa: $agregados tickets descargados.");
+        debugPrint("Sincronización completa: $agregados tickets descargados.");
       } else {
-        debugPrint("✅ Sincronización completa: No había tickets nuevos.");
+        debugPrint("Sincronización completa: No había tickets nuevos.");
       }
 
     } catch (e) {
-      debugPrint("⚠️ Error sincronizando: $e");
+      debugPrint("Error sincronizando: $e");
     }
   }
 
@@ -102,7 +102,6 @@ class HistoryService {
             .collection('users')
             .doc(user.uid)
             .collection('tickets')
-        // CORRECCIÓN AQUÍ: Agregamos 'as String' para asegurar el tipo
             .doc(entry['id'] as String)
             .set({
           ...entry,
@@ -112,9 +111,9 @@ class HistoryService {
           'meta_impares': numeros.where((n) => n.isOdd).length,
         });
 
-        debugPrint("☁️ Ticket subido y sincronizado en la nube");
+        debugPrint("Ticket subido y sincronizado en la nube");
       } catch (e) {
-        debugPrint("⚠️ Error nube: $e");
+        debugPrint("Error nube: $e");
       }
     }
   }
@@ -161,7 +160,7 @@ class HistoryService {
   Future<void> limpiarHistorial() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyHistorial);
-    debugPrint("🧹 Historial local eliminado por cierre de sesión.");
+    debugPrint("Historial local eliminado por cierre de sesión.");
   }
 
   Future<void> _guardarEnLocal(Map<String, dynamic> nuevaEntrada) async {

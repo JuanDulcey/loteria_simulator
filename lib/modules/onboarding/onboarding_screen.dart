@@ -104,7 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
 
-            // Indicators
+            // Indicadores
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_pages.length, (index) {
@@ -149,12 +149,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _finishOnboarding() {
     widget.appState.completeOnboarding();
-    // Since we are in main.dart changing home based on state, it should rebuild automatically.
-    // However, if we pushed this screen, we should pop.
-    // If we are at root (home: Onboarding), completeOnboarding triggers rebuild of main.dart
-    // which switches home to MenuLoteriasScreen.
-    // But AnimatedBuilder in main.dart should handle it.
-    // If we were pushed from settings, we should pop.
 
     if (Navigator.canPop(context)) {
        Navigator.pop(context);

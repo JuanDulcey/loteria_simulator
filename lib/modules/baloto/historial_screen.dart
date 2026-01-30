@@ -84,14 +84,14 @@ class _HistorialScreenState extends State<HistorialScreen> {
     );
   }
 
-  /// 🎫 DISEÑO TIPO TICKET DE LOTERÍA (PREMIUM)
+  /// DISEÑO TIPO TICKET DE LOTERÍA
   Widget _buildTicketReal(Map<String, dynamic> item, bool isDark) {
     final numeros = List<int>.from(item['numeros']);
     final superBalota = item['superBalota'] as int;
     final fecha = DateTime.parse(item['fecha']);
     final fechaStr = DateFormat('dd MMM yyyy').format(fecha);
     final horaStr = DateFormat('hh:mm a').format(fecha);
-    final origen = item['origen'] == 'nube' ? '☁️ Sincronizado' : '📱 Local';
+    final origen = item['origen'] == 'nube' ? 'Sincronizado' : 'Local';
 
     return Container(
       decoration: BoxDecoration(
@@ -107,7 +107,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
       ),
       child: Column(
         children: [
-          // CABECERA DEL TICKET (Color Dorado/Azul)
+          // CABECERA DEL TICKET
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
@@ -215,7 +215,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
     );
   }
 
-  /// 🧪 DISEÑO REPORTE DE LABORATORIO (TECNOLÓGICO)
+  /// DISEÑO REPORTE DE LABORATORIO (TECNOLÓGICO)
   Widget _buildReporteSimulacion(Map<String, dynamic> item, bool isDark) {
     final cantidad = item['cantidad'];
     final superHot = item['superHot'];
@@ -241,7 +241,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
         ],
       ),
       child: ExpansionTile(
-        shape: const Border(), // Quita bordes internos por defecto
+        shape: const Border(),
         collapsedShape: const Border(),
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
@@ -374,7 +374,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
               _cargarData();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Historial local limpio ✨")),
+                  const SnackBar(content: Text("Historial local limpio")),
                 );
               }
             },
