@@ -69,18 +69,15 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
   }
 
   void _limpiarData() async {
-    // Borrar RAM
     _simService.limpiarHistorial();
     _actualizarStats();
 
-    // Borrar Disco Local (SharedPreferences)
-    // NOTA: Esto no borra los tickets que subiste a Firestore.
     await _historyService.limpiarHistorial();
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('♻️ Historial local eliminado'),
+          content: Text('Historial local eliminado'),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -174,7 +171,7 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
 
               // Calientes
               _buildStatCard(
-                title: "Números Calientes 🔥",
+                title: "Números Calientes",
                 subtitle: "Mayor frecuencia en este lote",
                 colorHeader: Colors.orange.shade800,
                 content: Row(
@@ -187,7 +184,7 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
 
               // Fríos
               _buildStatCard(
-                title: "Números Fríos ❄️",
+                title: "Números Fríos",
                 subtitle: "Menor frecuencia en este lote",
                 colorHeader: Colors.blue.shade700,
                 content: Row(
@@ -200,7 +197,7 @@ class _BalotoDashboardScreenState extends State<BalotoDashboardScreen> {
 
               // Superbalota
               _buildStatCard(
-                title: "Superbalota Rey 👑",
+                title: "Superbalota Rey",
                 subtitle: "La reina de este lote",
                 colorHeader: Colors.purple.shade700,
                 content: Center(

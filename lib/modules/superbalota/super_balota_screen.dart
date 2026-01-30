@@ -53,13 +53,12 @@ class _SuperBalotaScreenState extends State<SuperBalotaScreen> with SingleTicker
     _shuffleTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
-          _tempNumber = Random().nextInt(16) + 1; // Baloto superbalota is 1-16
+          _tempNumber = Random().nextInt(16) + 1;
         });
         widget.appState?.vibrate();
       }
     });
 
-    // Un poco más de suspenso para la final...
     await Future.delayed(const Duration(milliseconds: 2500));
     _shuffleTimer?.cancel();
 
@@ -183,7 +182,7 @@ class _SuperBalotaScreenState extends State<SuperBalotaScreen> with SingleTicker
 
                 const SizedBox(height: 60),
 
-                // BOTONES CORREGIDOS
+                // BOTONES
                 if (_superBalotaGenerada == null)
                   ElevatedButton.icon(
                     onPressed: _simulando ? null : _generarSuperBalota,

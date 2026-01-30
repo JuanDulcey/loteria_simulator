@@ -1,14 +1,12 @@
 import 'loteria_service.dart';
 
 class SimulationService {
-  // Singleton para mantener los datos en memoria mientras la app está abierta
   static final SimulationService _instance = SimulationService._internal();
   factory SimulationService() => _instance;
   SimulationService._internal();
 
   final LoteriaService _loteriaService = LoteriaService();
 
-  // Base de datos local en memoria (Aquí se guardan las jugadas)
   List<Map<String, dynamic>> _historialSimulaciones = [];
 
   // Getters
@@ -20,7 +18,6 @@ class SimulationService {
     await Future.delayed(const Duration(milliseconds: 100));
 
     for (int i = 0; i < cantidad; i++) {
-      // Usamos el servicio existente para respetar las reglas
       final numeros = _loteriaService.generarNumerosPrincipales();
       final superBalota = _loteriaService.generarSuperBalota();
 

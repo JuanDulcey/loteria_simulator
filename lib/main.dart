@@ -12,14 +12,14 @@ import 'theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // A. INICIALIZAR FIREBASE (Sin esto, AuthService falla)
+  // A. INICIALIZAR FIREBASE
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("⚠️ Advertencia: No se pudo inicializar Firebase. Verifique configuración: $e");
+    debugPrint("Advertencia: No se pudo inicializar Firebase. Verifique configuración: $e");
   }
 
-  // B. Bloquear rotación (Opcional, se ve mejor en vertical)
+  // B. Bloquear rotación
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -48,7 +48,7 @@ class LoteriaSimulatorApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: appState.themeMode,
 
-          // C. LÓGICA DE NAVEGACIÓN ACTUALIZADA
+          // C. LÓGICA DE NAVEGACIÓN
           home: _getHomeScreen(),
         );
       },

@@ -5,8 +5,6 @@ class LoteriaService {
 
   // --- MÉTODOS DE JUEGO PASO A PASO (UI) ---
 
-  /// Genera un número asegurando que no se repita con los anteriores.
-  /// Usado en el Ambiente 1 (Aleatorio).
   int generarNumeroUnico(List<int> excluidos) {
     int numero;
     do {
@@ -16,15 +14,12 @@ class LoteriaService {
   }
 
   /// Ambiente 2: Estadístico
-  /// (Por ahora aleatorio, listo para conectar con HistoryService en el futuro)
   int generarNumeroEstadistico(List<int> excluidos) {
-    // TODO: Conectar con HistoryService.analizarPatronesPersonales()
     return generarNumeroUnico(excluidos);
   }
 
   /// Ambiente 3: Patrones
   int generarNumeroPatrones(List<int> excluidos) {
-    // TODO: Implementar lógica de pares/impares
     return generarNumeroUnico(excluidos);
   }
 
@@ -40,7 +35,6 @@ class LoteriaService {
 
   // --- MÉTODOS DE SIMULACIÓN MASIVA (DASHBOARD) ---
 
-  /// Genera un ticket completo de golpe (para simular 10,000 veces rápido).
   List<int> generarNumerosPrincipales() {
     final Set<int> numeros = {};
 

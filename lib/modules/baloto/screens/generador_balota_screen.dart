@@ -70,11 +70,8 @@ class _GeneradorBalotaScreenState extends State<GeneradorBalotaScreen> with Sing
     _timerAnimacion = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
-          // Mostramos números al azar solo visualmente
           _numeroAnimacion = _loteriaService.generarNumeroUnico([]);
         });
-        // Vibración suave tipo "tic-tac" si lo deseas
-        // widget.appState?.vibrate();
       }
     });
 
@@ -112,7 +109,7 @@ class _GeneradorBalotaScreenState extends State<GeneradorBalotaScreen> with Sing
       _numeroGenerado = resultadoFinal;
       _isSimulating = false;
     });
-    _animController.forward(from: 0.0); // Iniciar animación de entrada
+    _animController.forward(from: 0.0);
   }
 
   void _confirmarSeleccion() {
@@ -244,7 +241,7 @@ class _GeneradorBalotaScreenState extends State<GeneradorBalotaScreen> with Sing
                       child: ElevatedButton.icon(
                         onPressed: _confirmarSeleccion,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green, // Color éxito
+                          backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                           elevation: 4,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

@@ -40,9 +40,9 @@ class LoginScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF0F172A), // Azul noche profundo
-                  Color(0xFF1E293B), // Gris azulado
-                  Color(0xFF000000), // Negro puro al final
+                  Color(0xFF0F172A),
+                  Color(0xFF1E293B),
+                  Color(0xFF000000),
                 ],
               ),
             ),
@@ -92,7 +92,7 @@ class LoginScreen extends StatelessWidget {
                     child: const Icon(
                       Icons.casino_rounded,
                       size: 60,
-                      color: Colors.amber, // Toque dorado para lotería
+                      color: Colors.amber,
                     ),
                   ),
 
@@ -104,7 +104,7 @@ class LoginScreen extends StatelessWidget {
                     style: textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
-                      letterSpacing: 3.0, // Espaciado elegante
+                      letterSpacing: 3.0,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -152,7 +152,7 @@ class LoginScreen extends StatelessWidget {
                                   if (context.mounted && appState.isLoggedIn) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text("¡Bienvenido de nuevo! ☁️"),
+                                        content: Text("¡Bienvenido de nuevo!"),
                                         backgroundColor: Colors.green,
                                         behavior: SnackBarBehavior.floating,
                                       ),
@@ -212,7 +212,7 @@ class LoginScreen extends StatelessWidget {
 
                   const SizedBox(height: 30),
 
-                  // Footer legal (Toque pro)
+                  // Footer legal
                   Text(
                     "Al continuar, aceptas nuestros Términos y Política de Privacidad.",
                     textAlign: TextAlign.center,
@@ -238,13 +238,13 @@ class _GoogleSignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 56, // Altura cómoda para el dedo
+      height: 56,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
-          elevation: 0, // Plano para estilo moderno
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -262,7 +262,7 @@ class _GoogleSignInButton extends StatelessWidget {
                 return const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2));
               },
               errorBuilder: (context, error, stackTrace) =>
-              const Icon(Icons.g_mobiledata, color: Colors.red, size: 30), // Fallback por si no hay internet
+              const Icon(Icons.g_mobiledata, color: Colors.red, size: 30),
             ),
             const SizedBox(width: 12),
             const Text(
@@ -270,7 +270,7 @@ class _GoogleSignInButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'Roboto', // Fuente oficial de Android
+                fontFamily: 'Roboto',
                 letterSpacing: 0.5,
               ),
             ),

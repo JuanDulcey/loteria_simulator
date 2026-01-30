@@ -11,27 +11,26 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = appState.currentUser;
-    // Si por alguna razón es null, mostramos loading o vacío
+
     if (user == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
 
-    // Iniciales seguras (Evita crash si el nombre está vacío)
     final String iniciales = user.displayName.isNotEmpty
         ? user.displayName.substring(0, 1).toUpperCase()
         : '?';
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true, // Para que el color suba
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Mi Perfil', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.white, // Texto blanco sobre el fondo azul
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -92,7 +91,7 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 60), // Espacio para la foto que sobresale
+            const SizedBox(height: 60),
 
             // ---------------------------------------------
             // 2. INFORMACIÓN DEL USUARIO
@@ -173,7 +172,7 @@ class ProfileScreen extends StatelessWidget {
                     await appState.playClick();
                     await appState.logout();
                     if (context.mounted) {
-                      Navigator.of(context).pop(); // Volver al menú (que mostrará login)
+                      Navigator.of(context).pop();
                     }
                   },
                 ),

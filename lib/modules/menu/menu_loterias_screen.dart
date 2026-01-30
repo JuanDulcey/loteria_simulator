@@ -95,13 +95,13 @@ class MenuLoteriasScreen extends StatelessWidget {
                   // Fondo base
                   Container(color: const Color(0xFF0F172A)),
 
-                  // Gradiente Decorativo (SIN CONST para que funcione withOpacity)
+                  // Gradiente Decorativo
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
                           const Color(0xFF0F172A),
-                          colorScheme.primary.withValues(alpha: 0.5), // Aquí estaba el error antes
+                          colorScheme.primary.withValues(alpha: 0.5),
                           const Color(0xFF1E293B),
                         ],
                         begin: Alignment.topLeft,
@@ -119,7 +119,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                       child: Icon(
                         Icons.casino_rounded,
                         size: 180,
-                        color: Colors.white.withValues(alpha: 0.05), // Opacidad suave
+                        color: Colors.white.withValues(alpha: 0.05),
                       ),
                     ),
                   ),
@@ -224,7 +224,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                   colorFin: const Color(0xFFFFD700),
                   icono: Icons.auto_awesome_rounded,
                   esActiva: false,
-                  textColor: Colors.black87, // Texto oscuro para contraste en dorado
+                  textColor: Colors.black87,
                 ),
 
                 const SizedBox(height: 40),
@@ -243,7 +243,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 40), // Espacio extra al final
+                const SizedBox(height: 40),
               ]),
             ),
           ),
@@ -266,7 +266,6 @@ class MenuLoteriasScreen extends StatelessWidget {
         Color textColor = Colors.white,
       }) {
 
-    // Eliminamos const aquí para que flutter no se queje
     final borderRadius = BorderRadius.circular(24);
 
     return Container(
@@ -274,7 +273,7 @@ class MenuLoteriasScreen extends StatelessWidget {
         borderRadius: borderRadius,
         boxShadow: [
           BoxShadow(
-            color: colorInicio.withValues(alpha: 0.25), // Sombra del color de la tarjeta
+            color: colorInicio.withValues(alpha: 0.25),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -331,7 +330,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                     right: -20,
                     top: -20,
                     child: Transform.rotate(
-                      angle: 0.2, // Rotación leve
+                      angle: 0.2,
                       child: Icon(
                         icono,
                         size: esDestacada ? 160 : 120,
@@ -369,7 +368,7 @@ class MenuLoteriasScreen extends StatelessWidget {
                                 nombre,
                                 style: TextStyle(
                                   color: textColor,
-                                  fontWeight: FontWeight.w900, // Extra negrita
+                                  fontWeight: FontWeight.w900,
                                   fontSize: esDestacada ? 22 : 18,
                                   letterSpacing: 1.0,
                                 ),

@@ -54,12 +54,12 @@ class AuthService {
       }
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        print("❌ Firebase Auth Error: ${e.message} (${e.code})");
+        print("Firebase Auth Error: ${e.message} (${e.code})");
       }
       // Re-throw or handle specific errors here
     } catch (e) {
       if (kDebugMode) {
-        print("❌ Error Genérico en Login Google: $e");
+        print("Error Genérico en Login Google: $e");
       }
     }
     return null;

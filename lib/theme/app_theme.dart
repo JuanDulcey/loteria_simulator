@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // Colores base
   static const Color primaryLight = Color(0xFF0F172A);
-  static const Color primaryDark = Color(0xFF94A3B8); // Slate 400
+  static const Color primaryDark = Color(0xFF94A3B8);
   static const Color accentLight = Color(0xFF003366);
-  static const Color accentDark = Color(0xFF38BDF8); // Sky 400
+  static const Color accentDark = Color(0xFF38BDF8);
 
   // ----------------------------------------------------------
-  // TEMA CLARO (LIGHT)
+  // TEMA CLARO
   // ----------------------------------------------------------
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
@@ -18,11 +18,9 @@ class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: primaryLight,
       brightness: Brightness.light,
-      // ESTRATEGIA: Surface blanco para que las Cards sean blancas por defecto
       surface: Colors.white,
     ),
 
-    // Fondo gris claro para contraste
     scaffoldBackgroundColor: const Color(0xFFF5F7FA),
 
     // BARRA DE NAVEGACIÓN
@@ -32,10 +30,6 @@ class AppTheme {
       centerTitle: true,
       elevation: 0,
     ),
-
-    // NOTA: Hemos eliminado 'cardTheme' para evitar el conflicto de tipos.
-    // El estilo de las tarjetas se manejará por defecto con el ColorScheme.surface (Blanco)
-    // y las sombras/bordes definidos en los widgets individuales.
 
     // TEXTOS
     textTheme: const TextTheme(
@@ -68,7 +62,7 @@ class AppTheme {
 
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-      bodyLarge: TextStyle(color: Color(0xFFCBD5E1)), // Slate 300
+      bodyLarge: TextStyle(color: Color(0xFFCBD5E1)),
     ),
   );
 }
